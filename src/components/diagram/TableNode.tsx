@@ -1,0 +1,171 @@
+import type { FC } from "react";
+import type { NodeProps } from "reactflow";
+import type { Table, Attribute } from "../../models";
+
+import { memo } from "react";
+import { Icon } from "../Icon";
+import { Handle, Position } from "reactflow";
+import { useSchema, useLayout } from "../../stores";
+import { migrationCmdYiiGenerate } from "../../services";
+
+type TableNodeProps = NodeProps<Table>;
+
+const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
+  const { deleteTable } = useSchema();
+  const { openDrawer } = useLayout();
+
+  const handleEditTable = () => {
+    openDrawer("edit", id);
+  };
+
+  const handleDeleteTable = () => {
+    deleteTable(id);
+  };
+
+  const handleAddAttribute = () => {
+    openDrawer("create", id);
+  };
+
+  const handleEditAttribute = (attributeId: string) => {
+    openDrawer("edit", id, attributeId);
+  };
+
+  const handleCopyCommand = () => {
+    const { name, attributes } = data;
+    const command = migrationCmdYiiGenerate(name, attributes);
+    navigator.clipboard.writeText(command);
+
+    // Show toast or some indicator
+    const toast = document.getElementById("command-toast");
+    if (toast) {
+      toast.classList.remove("hidden");
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 3000);
+    }
+  };
+
+  return (
+    <div className="bg-base-100 rounded-lg shadow-lg p-4 border border-base-300 w-64">
+      {/* Table Header */}
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center space-x-2">
+          <Icon id="database" size={16} className="text-primary" />
+          <h3 className="font-bold text-lg">{data.name}</h3>
+        </div>
+        <div className="flex space-x-1">
+          <button
+            className="btn btn-xs btn-ghost"
+            onClick={handleEditTable}
+            aria-label="Edit table"
+          >
+            <Icon id="edit" size={14} />
+          </button>
+          <button
+            className="btn btn-xs btn-ghost text-error"
+            onClick={handleDeleteTable}
+            aria-label="Delete table"
+          >
+            <Icon id="trash" size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Description */}
+      {data.description && (
+        <p className="text-xs text-base-content/70 mb-1">{data.description}</p>
+      )}
+
+      {/* Table Attributes */}
+      <div className="divide-y divide-base-300">
+        {data.attributes.map((attr: Attribute) => (
+          <div key={attr.id} className="py-1.5 flex justify-between group">
+            <div className="space-x-2">
+              <span className="font-medium text-sm">{attr.name}</span>
+              <span className="text-xs text-base-content/70">{attr.type}</span>
+            </div>
+            <div className="space-x-2">
+              {attr.isPrimaryKey && (
+                <div className="tooltip" data-tip="Primary Key">
+                  <Icon id="key" className="inline" size={14} color="#4a00ff" />
+                </div>
+              )}
+              {attr.isForeignKey && (
+                <div className="tooltip" data-tip="Foreign Key">
+                  <Icon id="key" className="inline" size={14} color="#ff1ecc" />
+                </div>
+              )}
+              {attr.isUnique && (
+                <div className="tooltip" data-tip="Unique">
+                  <Icon
+                    id="fingerprint"
+                    className="inline"
+                    size={14}
+                    color="#ff1ecc"
+                  />
+                </div>
+              )}
+              {attr.isRequired && (
+                <div className="tooltip" data-tip="Required">
+                  <Icon
+                    id="asterisk"
+                    className="inline "
+                    size={14}
+                    color="#4a00ff"
+                  />
+                </div>
+              )}
+              <button
+                className="btn btn-xs btn-ghost"
+                onClick={() => handleEditAttribute(attr?.id ?? "")}
+                aria-label={`Edit ${attr.name} attribute`}
+              >
+                <Icon id="edit" size={12} />
+              </button>
+            </div>
+
+            {/* Handle for creating connections */}
+            {attr.isPrimaryKey && (
+              <Handle
+                type="target"
+                position={Position.Left}
+                id={attr.id}
+                className="w-3 h-3 bg-primary border-2 border-base-100"
+              />
+            )}
+
+            {attr.isForeignKey && (
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={attr.id}
+                className="w-3 h-3 bg-secondary border-2 border-base-100"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div className="mt-2 flex justify-between">
+        <button
+          className="btn btn-xs btn-accent text-white"
+          onClick={handleAddAttribute}
+        >
+          <Icon id="plus" size={14} />
+          Attribute
+        </button>
+
+        <button
+          className="btn btn-xs btn-outline btn-primary"
+          onClick={handleCopyCommand}
+        >
+          <Icon id="copy" size={14} />
+          Command
+        </button>
+      </div>
+    </div>
+  );
+});
+
+export { TableNode };

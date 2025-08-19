@@ -1,0 +1,20 @@
+---
+import { Theme, Command } from "@components/buttons";
+import { Icon, Modal } from "@components";
+---
+
+<header class="navbar bg-base-200 shadow-sm z-10">
+  <div class="flex-1">
+    <div class="flex items-center space-x-2 px-4">
+      <Icon id="command" size={24} className="text-primary" />
+      <h1 class="text-xl font-bold">Yii Migration Designer</h1>
+    </div>
+  </div>
+
+  <div class="flex-none gap-2">
+    <Command client:only />
+    <Theme client:only />
+  </div>
+
+  <Modal client:only />
+</header>

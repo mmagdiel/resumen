@@ -1,0 +1,26 @@
+---
+import { title } from "@label";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@uis/Header.astro";
+
+import { ReactFlowProvider } from "reactflow";
+import { Flow } from "@components/diagram";
+import "../styles/global.css";
+
+/*
+import Icon from "@components/Icon";
+  <Icon id="x" size={20} />
+  <div>{title}</div>
+*/
+---
+
+<Layout title={title}>
+  <div class="flex flex-col h-screen w-full overflow-hidden">
+    <Header />
+    <main class="flex-1 overflow-hidden">
+      <ReactFlowProvider>
+        <Flow />
+      </ReactFlowProvider>
+    </main>
+  </div>
+</Layout>
