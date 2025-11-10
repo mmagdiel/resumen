@@ -3,8 +3,9 @@ import { title } from "@label";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@uis/Header.astro";
 
+
 import { ReactFlowProvider } from "reactflow";
-import { Flow } from "@components/diagram";
+import { Drawer, Flow } from "@components"
 import "../styles/global.css";
 
 /*
@@ -22,5 +23,6 @@ import Icon from "@components/Icon";
         <Flow />
       </ReactFlowProvider>
     </main>
+    <Drawer />
   </div>
 </Layout>

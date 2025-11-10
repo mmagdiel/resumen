@@ -1,21 +1,21 @@
 import { create } from "zustand";
 
 import type { UseSchema } from "@models/stores";
-import type { Edge, Table, Attribute } from "@models/core/yii";
+import type { Edge, Node, Attribute } from "@models/core/yii";
 
 const initialSchema = {
-  tables: [],
+  nodes: [],
   edges: [],
 };
-
+// Node nodes
 export const useSchema = create<UseSchema>((set) => ({
   schema: initialSchema,
 
-  addTable: (table) =>
+  addNode: (node) =>
     set((state) => {
       const attributes = [
         {
-          id: `${table.name}-id`,
+          id: `${node.name}-id`,
           name: "id",
           type: "integer",
           isRequired: true,
@@ -24,9 +24,9 @@ export const useSchema = create<UseSchema>((set) => ({
           isForeignKey: false,
         },
       ];
-      const id = table.name.toLowerCase().replace(/\s+/g, "_");
-      const newTable: Table = {
-        ...table,
+      const id = node.name.toLowerCase().replace(/\s+/g, "_");
+      const newNode: Node = {
+        ...node,
         id,
         attributes,
         position: { x: Math.random() * 400, y: Math.random() * 400 },
@@ -35,22 +35,22 @@ export const useSchema = create<UseSchema>((set) => ({
       return {
         schema: {
           ...state.schema,
-          tables: [...state.schema.tables, newTable],
+          tables: [...state.schema.nodes, newNode],
         },
       };
     }),
 
-  updateTable: (id, data) =>
+  updateNode: (id, data) =>
     set((state) => ({
       schema: {
         ...state.schema,
-        tables: state.schema.tables.map((table) =>
+        tables: state.schema.nodes.map((table) =>
           table.id === id ? { ...table, ...data } : table,
         ),
       },
     })),
 
-  deleteTable: (id) =>
+  deleteNode: (id) =>
     set((state) => {
       // Remove edges connected to this table
       const filteredEdges = state.schema.edges.filter(
@@ -59,18 +59,18 @@ export const useSchema = create<UseSchema>((set) => ({
 
       return {
         schema: {
-          tables: state.schema.tables.filter((table) => table.id !== id),
+          nodes: state.schema.nodes.filter((node) => node.id !== id),
           edges: filteredEdges,
         },
       };
     }),
 
-  updateTablePosition: (id, position) =>
+  updateNodePosition: (id, position) =>
     set((state) => ({
       schema: {
         ...state.schema,
-        tables: state.schema.tables.map((table) =>
-          table.id === id ? { ...table, position } : table,
+        nodes: state.schema.nodes.map((node) =>
+          node.id === id ? { ...node, position } : node,
         ),
       },
     })),
@@ -85,7 +85,7 @@ export const useSchema = create<UseSchema>((set) => ({
       // If this is a foreign key, create an edge
       const newEdges = [...state.schema.edges];
       if (attribute.isForeignKey && attribute.referencesTable) {
-        const targetTable = state.schema.tables.find(
+        const targetTable = state.schema.nodes.find(
           (t) => t.id === attribute.referencesTable,
         );
         if (targetTable) {
@@ -109,16 +109,13 @@ export const useSchema = create<UseSchema>((set) => ({
       return {
         schema: {
           ...state.schema,
-          tables: state.schema.tables.map((table) =>
-            table.id === tableId
+          nodes: state.schema.nodes.map((node) =>
+            node.id === tableId
               ? {
-                  ...table,
-                  attributes: [
-                    ...table.attributes,
-                    newAttribute,
-                  ] as Attribute[],
+                  ...node,
+                  attributes: [...node.attributes, newAttribute] as Attribute[],
                 }
-              : table,
+              : node,
           ),
           edges: newEdges,
         },
@@ -131,7 +128,7 @@ export const useSchema = create<UseSchema>((set) => ({
       let newEdges = [...state.schema.edges];
 
       // Find existing attribute
-      const table = state.schema.tables.find((t) => t.id === tableId);
+      const table = state.schema.nodes.find((t) => t.id === tableId);
       const existingAttribute = table?.attributes.find(
         (a) => a.id === attributeId,
       );
@@ -161,7 +158,7 @@ export const useSchema = create<UseSchema>((set) => ({
             data.referencesTable || existingAttribute?.referencesTable;
 
           if (refTable) {
-            const targetTable = state.schema.tables.find(
+            const targetTable = state.schema.nodes.find(
               (t) => t.id === refTable,
             );
             if (targetTable) {
@@ -190,15 +187,15 @@ export const useSchema = create<UseSchema>((set) => ({
       return {
         schema: {
           ...state.schema,
-          tables: state.schema.tables.map((table) =>
-            table.id === tableId
+          nodes: state.schema.nodes.map((node) =>
+            node.id === tableId
               ? {
-                  ...table,
-                  attributes: table.attributes.map((attr) =>
+                  ...node,
+                  attributes: node.attributes.map((attr) =>
                     attr.id === attributeId ? { ...attr, ...data } : attr,
                   ) as Attribute[],
                 }
-              : table,
+              : node,
           ),
           edges: newEdges,
         },
@@ -217,15 +214,15 @@ export const useSchema = create<UseSchema>((set) => ({
       return {
         schema: {
           ...state.schema,
-          tables: state.schema.tables.map((table) =>
-            table.id === tableId
+          nodes: state.schema.nodes.map((node) =>
+            node.id === tableId
               ? {
-                  ...table,
-                  attributes: table.attributes.filter(
+                  ...node,
+                  attributes: node.attributes.filter(
                     (attr) => attr.id !== attributeId,
                   ),
                 }
-              : table,
+              : node,
           ),
           edges: filteredEdges,
         },

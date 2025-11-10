@@ -1,4 +1,4 @@
-import type { Table } from "@models/core/yii";
+import type { Node } from "@models/core/yii";
 
 import clsx from "clsx";
 import { useLayout, useSchema } from "@/stores";
@@ -6,12 +6,12 @@ import { migrationCmdYiiGenerate } from "@services/generators/yii";
 
 export const Modal = () => {
   const { schema } = useSchema();
-  const { selectedTable, isCmdModalOpen } = useLayout();
+  const { selectedTable, isModalOpen } = useLayout();
   const { handleModalClose, setTable } = useLayout();
   const getCommand = (): string => {
     if (!selectedTable) return "";
 
-    const table = schema.tables.find((t: Table) => t.id === selectedTable);
+    const table = schema.nodes.find((t: Node) => t.id === selectedTable);
     if (!table) return "";
 
     return migrationCmdYiiGenerate(table.name, table.attributes);
@@ -19,7 +19,7 @@ export const Modal = () => {
   return (
     <dialog
       id="commands_modal"
-      className={clsx("modal", isCmdModalOpen && "modal-open")}
+      className={clsx("modal", isModalOpen && "modal-open")}
     >
       <div className="modal-box w-11/12 max-w-3xl">
         <h3 className="font-bold text-lg mb-4">Yii Migration Commands</h3>
@@ -36,7 +36,7 @@ export const Modal = () => {
             <option value="" disabled>
               Select a table
             </option>
-            {schema.tables.map((table: Table) => (
+            {schema.nodes.map((table: Node) => (
               <option key={table.id} value={table.id}>
                 {table.name}
               </option>

@@ -1,11 +1,11 @@
-import type { Database, Table, Attribute } from "@models/core/yii";
+import type { Database, Node, Attribute } from "@models/core/yii";
 
 export interface UseSchema {
   schema: Database;
-  addTable: (table: Omit<Table, "id" | "position">) => void;
-  updateTable: (id: string, data: Partial<Omit<Table, "id">>) => void;
-  deleteTable: (id: string) => void;
-  updateTablePosition: (id: string, position: { x: number; y: number }) => void;
+  addNode: (node: Omit<Node, "id" | "position">) => void;
+  updateNode: (id: string, data: Partial<Omit<Node, "id">>) => void;
+  deleteNode: (id: string) => void;
+  updateNodePosition: (id: string, position: { x: number; y: number }) => void;
   addAttribute: (tableId: string, attribute: Omit<Attribute, "id">) => void;
   updateAttribute: (
     tableId: string,

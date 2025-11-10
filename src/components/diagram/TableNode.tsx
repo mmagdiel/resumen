@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import type { NodeProps } from "reactflow";
-import type { Table, Attribute } from "../../models";
+import type { Node, Attribute } from "../../models";
 
 import { memo } from "react";
 import { Icon } from "../Icon";
@@ -8,10 +8,10 @@ import { Handle, Position } from "reactflow";
 import { useSchema, useLayout } from "../../stores";
 import { migrationCmdYiiGenerate } from "../../services";
 
-type TableNodeProps = NodeProps<Table>;
+type TableNodeProps = NodeProps<Node>;
 
 const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
-  const { deleteTable } = useSchema();
+  const { deleteNode } = useSchema();
   const { openDrawer } = useLayout();
 
   const handleEditTable = () => {
@@ -19,7 +19,7 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
   };
 
   const handleDeleteTable = () => {
-    deleteTable(id);
+    deleteNode(id);
   };
 
   const handleAddAttribute = () => {

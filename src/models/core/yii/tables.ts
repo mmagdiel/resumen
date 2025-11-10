@@ -1,4 +1,4 @@
-import type { Attribute } from "./attributes";
+import type { Attributes } from "./attributes";
 
 export interface Position {
   x: number;
@@ -9,6 +9,6 @@ export interface Table {
   id: string;
   name: string;
   description: string;
-  attributes: Attribute[];
   position: Position;
+  attributes: Attributes;
 }

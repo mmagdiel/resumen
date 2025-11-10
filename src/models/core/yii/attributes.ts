@@ -1,7 +1,7 @@
 import type { AttributeType } from "./types";
 
 export interface AttrDTO {
-  id?: string;
+  id: string;
   name: string;
   type: AttributeType;
   isRequired?: boolean;
@@ -41,3 +41,4 @@ export interface ScaleAttrs
 }
 
 export type Attribute = FlatAttrs | CountAttrs | AccuracyAttrs | ScaleAttrs;
+// export type Attr = Omit<AttrDTO, "id">;
