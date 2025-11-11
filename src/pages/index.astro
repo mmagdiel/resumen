@@ -8,21 +8,16 @@ import { ReactFlowProvider } from "reactflow";
 import { Drawer, Flow } from "@components"
 import "../styles/global.css";
 
-/*
-import Icon from "@components/Icon";
-  <Icon id="x" size={20} />
-  <div>{title}</div>
-*/
 ---
 
 <Layout title={title}>
   <div class="flex flex-col h-screen w-full overflow-hidden">
     <Header />
     <main class="flex-1 overflow-hidden">
-      <ReactFlowProvider>
-        <Flow />
+      <ReactFlowProvider client:load>
+        <Flow client:load />
       </ReactFlowProvider>
     </main>
-    <Drawer />
+    <Drawer client:load />
   </div>
 </Layout>

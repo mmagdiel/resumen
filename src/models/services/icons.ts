@@ -1,3 +1,8 @@
 import type { Icon, SVGProps } from "@models/icons";
 
-export type GetIcon = (icon: Icon, size: number, color: string) => SVGProps;
+export type GetIcon = (
+  icon: Icon,
+  size: number,
+  color: string,
+  className?: string,
+) => SVGProps;

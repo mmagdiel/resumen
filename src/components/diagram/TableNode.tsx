@@ -59,7 +59,7 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
             onClick={handleEditTable}
             aria-label="Edit table"
           >
-            <Icon id="edit" size={14} />
+            <Icon id="edit" size={14} className="text-primary" />
           </button>
           <button
             className="btn btn-xs btn-ghost text-error"
@@ -87,31 +87,29 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
             <div className="space-x-2">
               {attr.isPrimaryKey && (
                 <div className="tooltip" data-tip="Primary Key">
-                  <Icon id="key" className="inline" size={14} color="#4a00ff" />
+                  <Icon id="key" className="inline text-primary" size={14} />
                 </div>
               )}
               {attr.isForeignKey && (
                 <div className="tooltip" data-tip="Foreign Key">
-                  <Icon id="key" className="inline" size={14} color="#ff1ecc" />
+                  <Icon id="key" className="inline text-secondary" size={14} />
                 </div>
               )}
               {attr.isUnique && (
                 <div className="tooltip" data-tip="Unique">
                   <Icon
-                    id="fingerprint"
-                    className="inline"
                     size={14}
-                    color="#ff1ecc"
+                    id="fingerprint"
+                    className="inline text-secondary"
                   />
                 </div>
               )}
               {attr.isRequired && (
                 <div className="tooltip" data-tip="Required">
                   <Icon
-                    id="asterisk"
-                    className="inline "
                     size={14}
-                    color="#4a00ff"
+                    id="asterisk"
+                    className="inline text-primary"
                   />
                 </div>
               )}

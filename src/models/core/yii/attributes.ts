@@ -41,4 +41,3 @@ export interface ScaleAttrs
 }
 
 export type Attribute = FlatAttrs | CountAttrs | AccuracyAttrs | ScaleAttrs;
-// export type Attr = Omit<AttrDTO, "id">;

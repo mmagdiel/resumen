@@ -1,6 +1,7 @@
 export interface SVGProps {
+  fill?: string;
   width: string;
   height: string;
-  fill: string;
   viewBox: string;
+  className?: string;
 }

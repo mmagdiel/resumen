@@ -34,5 +34,3 @@ export interface Database {
 
 export type AttrFormValues = Omit<AttrDTO, "id">;
 export type NodeFormValues = Omit<Node, "id" | "position">;
-
-// export type AttributeFormValues = Omit<AttributeType, "id">;

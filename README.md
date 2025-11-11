@@ -1,16 +1,458 @@
-# Astro Starter Kit: Basics
+# Yii Database Migration Designer
 
-```sh
-npm create astro@latest -- --template basics
+A visual tool for designing and managing Yii Framework database migrations using an interactive node-based interface.
+
+## Overview
+
+This application allows you to visually design database schemas by creating tables (nodes), relationships (edges), and attributes. The state can be persisted to local storage for seamless editing across sessions.
+
+## State Structure
+
+The application state is stored as a `Database` object that contains nodes and edges. This structure can be serialized to JSON and saved to local storage.
+
+### Core Types
+
+#### Database
+```typescript
+interface Database {
+  nodes: Node[];
+  edges: Edge[];
+}
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+#### Node
+Represents a database table with its attributes and position on the canvas.
+```typescript
+interface Node {
+  id: string;              // Unique identifier
+  name: string;            // Table name
+  position: Position;      // Canvas position
+  description: string;     // Table description
+  attributes: Attribute[]; // Column definitions
+}
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+interface Position {
+  x: number;
+  y: number;
+}
+```
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+#### Edge
+Represents a relationship between two tables.
+```typescript
+interface Edge {
+  id: string;            // Unique identifier
+  source: string;        // Source node ID
+  target: string;        // Target node ID
+  label?: string;        // Optional relationship label
+  sourceHandle?: string; // Connection point on source
+  targetHandle?: string; // Connection point on target
+}
+```
+
+#### Attribute
+Represents a table column. Attributes have different types based on their data requirements:
+
+**Base Attribute Properties:**
+```typescript
+interface AttrDTO {
+  id: string;
+  name: string;
+  type: AttributeType;
+  isRequired?: boolean;
+  isUnique?: boolean;
+  isPrimaryKey?: boolean;
+  isForeignKey?: boolean;
+  referencesTable?: string;
+  referencesField?: string;
+  defaultValue?: string | number | null;
+}
+```
+
+**Attribute Type Variants:**
+
+- **FlatAttrs**: Basic types without extra parameters
+  - Types: `text`, `date`, `boolean`
+
+- **CountAttrs**: Types that require length specification
+  - Types: `char`, `string`, `smallint`, `integer`, `bigint`, `binary`
+  - Additional property: `length: number`
+
+- **AccuracyAttrs**: Types that require precision
+  - Types: `datetime`, `time`, `timestamp`, `float`
+  - Additional property: `precision: number`
+
+- **ScaleAttrs**: Types that require both precision and scale
+  - Types: `decimal`, `money`
+  - Additional properties: `precision: number`, `scale: number`
+
+### State Examples
+
+#### Example 1: Basic User Table
+```json
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "name": "users",
+      "position": { "x": 100, "y": 100 },
+      "description": "User accounts table",
+      "attributes": [
+        {
+          "id": "attr-1",
+          "name": "id",
+          "type": "integer",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "length": 11
+        },
+        {
+          "id": "attr-2",
+          "name": "username",
+          "type": "string",
+          "isRequired": true,
+          "isUnique": true,
+          "length": 50
+        },
+        {
+          "id": "attr-3",
+          "name": "email",
+          "type": "string",
+          "isRequired": true,
+          "isUnique": true,
+          "length": 100
+        },
+        {
+          "id": "attr-4",
+          "name": "is_active",
+          "type": "boolean",
+          "defaultValue": true
+        },
+        {
+          "id": "attr-5",
+          "name": "created_at",
+          "type": "datetime",
+          "isRequired": true,
+          "precision": 0
+        }
+      ]
+    }
+  ],
+  "edges": []
+}
+```
+
+#### Example 2: User-Posts Relationship
+```json
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "name": "users",
+      "position": { "x": 100, "y": 100 },
+      "description": "User accounts",
+      "attributes": [
+        {
+          "id": "attr-1",
+          "name": "id",
+          "type": "integer",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "length": 11
+        },
+        {
+          "id": "attr-2",
+          "name": "username",
+          "type": "string",
+          "isRequired": true,
+          "length": 50
+        }
+      ]
+    },
+    {
+      "id": "node-2",
+      "name": "posts",
+      "position": { "x": 400, "y": 100 },
+      "description": "User posts",
+      "attributes": [
+        {
+          "id": "attr-3",
+          "name": "id",
+          "type": "integer",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "length": 11
+        },
+        {
+          "id": "attr-4",
+          "name": "user_id",
+          "type": "integer",
+          "isRequired": true,
+          "isForeignKey": true,
+          "referencesTable": "users",
+          "referencesField": "id",
+          "length": 11
+        },
+        {
+          "id": "attr-5",
+          "name": "title",
+          "type": "string",
+          "isRequired": true,
+          "length": 200
+        },
+        {
+          "id": "attr-6",
+          "name": "content",
+          "type": "text"
+        },
+        {
+          "id": "attr-7",
+          "name": "published_at",
+          "type": "timestamp",
+          "precision": 0
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "node-1",
+      "target": "node-2",
+      "label": "has many",
+      "sourceHandle": "right",
+      "targetHandle": "left"
+    }
+  ]
+}
+```
+
+#### Example 3: E-commerce Schema
+```json
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "name": "products",
+      "position": { "x": 100, "y": 100 },
+      "description": "Product catalog",
+      "attributes": [
+        {
+          "id": "attr-1",
+          "name": "id",
+          "type": "integer",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "length": 11
+        },
+        {
+          "id": "attr-2",
+          "name": "sku",
+          "type": "string",
+          "isRequired": true,
+          "isUnique": true,
+          "length": 50
+        },
+        {
+          "id": "attr-3",
+          "name": "name",
+          "type": "string",
+          "isRequired": true,
+          "length": 255
+        },
+        {
+          "id": "attr-4",
+          "name": "price",
+          "type": "decimal",
+          "isRequired": true,
+          "precision": 10,
+          "scale": 2
+        },
+        {
+          "id": "attr-5",
+          "name": "stock",
+          "type": "integer",
+          "defaultValue": 0,
+          "length": 11
+        },
+        {
+          "id": "attr-6",
+          "name": "is_available",
+          "type": "boolean",
+          "defaultValue": true
+        }
+      ]
+    },
+    {
+      "id": "node-2",
+      "name": "orders",
+      "position": { "x": 450, "y": 100 },
+      "description": "Customer orders",
+      "attributes": [
+        {
+          "id": "attr-7",
+          "name": "id",
+          "type": "integer",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "length": 11
+        },
+        {
+          "id": "attr-8",
+          "name": "order_number",
+          "type": "string",
+          "isRequired": true,
+          "isUnique": true,
+          "length": 20
+        },
+        {
+          "id": "attr-9",
+          "name": "total",
+          "type": "money",
+          "isRequired": true,
+          "precision": 19,
+          "scale": 4
+        },
+        {
+          "id": "attr-10",
+          "name": "status",
+          "type": "string",
+          "isRequired": true,
+          "length": 20,
+          "defaultValue": "pending"
+        },
+        {
+          "id": "attr-11",
+          "name": "created_at",
+          "type": "datetime",
+          "isRequired": true,
+          "precision": 0
+        }
+      ]
+    },
+    {
+      "id": "node-3",
+      "name": "order_items",
+      "position": { "x": 275, "y": 300 },
+      "description": "Order line items",
+      "attributes": [
+        {
+          "id": "attr-12",
+          "name": "id",
+          "type": "integer",
+          "isPrimaryKey": true,
+          "isRequired": true,
+          "length": 11
+        },
+        {
+          "id": "attr-13",
+          "name": "order_id",
+          "type": "integer",
+          "isRequired": true,
+          "isForeignKey": true,
+          "referencesTable": "orders",
+          "referencesField": "id",
+          "length": 11
+        },
+        {
+          "id": "attr-14",
+          "name": "product_id",
+          "type": "integer",
+          "isRequired": true,
+          "isForeignKey": true,
+          "referencesTable": "products",
+          "referencesField": "id",
+          "length": 11
+        },
+        {
+          "id": "attr-15",
+          "name": "quantity",
+          "type": "integer",
+          "isRequired": true,
+          "length": 11
+        },
+        {
+          "id": "attr-16",
+          "name": "unit_price",
+          "type": "decimal",
+          "isRequired": true,
+          "precision": 10,
+          "scale": 2
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "node-2",
+      "target": "node-3",
+      "label": "has many",
+      "sourceHandle": "bottom",
+      "targetHandle": "top"
+    },
+    {
+      "id": "edge-2",
+      "source": "node-1",
+      "target": "node-3",
+      "label": "belongs to",
+      "sourceHandle": "bottom",
+      "targetHandle": "top"
+    }
+  ]
+}
+```
+
+### Local Storage Implementation
+
+To save and load the application state:
+
+```typescript
+// Save to local storage
+const saveState = (database: Database) => {
+  localStorage.setItem('yii-migration-state', JSON.stringify(database));
+};
+
+// Load from local storage
+const loadState = (): Database | null => {
+  const saved = localStorage.getItem('yii-migration-state');
+  return saved ? JSON.parse(saved) : null;
+};
+
+// Example usage
+const currentState: Database = {
+  nodes: [/* your nodes */],
+  edges: [/* your edges */]
+};
+
+saveState(currentState);
+
+// Later, restore the state
+const restored = loadState();
+if (restored) {
+  // Apply restored state to your application
+}
+```
+
+### Attribute Type Reference
+
+| Type | Category | Additional Properties | Example Use Case |
+|------|----------|----------------------|------------------|
+| `text` | Flat | None | Long descriptions |
+| `date` | Flat | None | Birth dates |
+| `boolean` | Flat | None | Active flags |
+| `char` | Countable | `length` | Fixed-size codes |
+| `string` | Countable | `length` | Names, emails |
+| `smallint` | Countable | `length` | Small numbers |
+| `integer` | Countable | `length` | IDs, counts |
+| `bigint` | Countable | `length` | Large numbers |
+| `binary` | Countable | `length` | Binary data |
+| `datetime` | Accuracy | `precision` | Created timestamps |
+| `time` | Accuracy | `precision` | Time of day |
+| `timestamp` | Accuracy | `precision` | Unix timestamps |
+| `float` | Accuracy | `precision` | Measurements |
+| `decimal` | Scalable | `precision`, `scale` | Prices |
+| `money` | Scalable | `precision`, `scale` | Currency values |
 
 ## 🚀 Project Structure
 

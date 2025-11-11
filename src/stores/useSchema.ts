@@ -35,7 +35,7 @@ export const useSchema = create<UseSchema>((set) => ({
       return {
         schema: {
           ...state.schema,
-          tables: [...state.schema.nodes, newNode],
+          nodes: [...state.schema.nodes, newNode],
         },
       };
     }),
@@ -44,7 +44,7 @@ export const useSchema = create<UseSchema>((set) => ({
     set((state) => ({
       schema: {
         ...state.schema,
-        tables: state.schema.nodes.map((table) =>
+        nodes: state.schema.nodes.map((table) =>
           table.id === id ? { ...table, ...data } : table,
         ),
       },

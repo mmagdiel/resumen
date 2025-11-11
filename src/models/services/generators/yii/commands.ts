@@ -1,9 +1,7 @@
 import type { Attribute } from "@models/core/yii";
 
-export type Attributes = Attribute[];
-
-export type FieldsGenerate = (attributes: Attributes) => string;
+export type FieldsGenerate = (attributes: Attribute[]) => string;
 export type MigrationCmdYiiGenerate = (
   name: string,
-  attributes: Attributes,
+  attributes: Attribute[],
 ) => string;
