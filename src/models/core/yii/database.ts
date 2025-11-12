@@ -28,6 +28,7 @@ type Nodes = Node[];
 type Edges = Edge[];
 
 export interface Database {
+  name: string;
   nodes: Nodes;
   edges: Edges;
 }

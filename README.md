@@ -13,10 +13,12 @@ The application state is stored as a `Database` object that contains nodes and e
 ### Core Types
 
 #### Database
+The main container for your diagram schema, including a name for identification.
 ```typescript
 interface Database {
-  nodes: Node[];
-  edges: Edge[];
+  name: string;        // Diagram name for identification
+  nodes: Node[];       // Array of table nodes
+  edges: Edge[];       // Array of relationships
 }
 ```
 
@@ -91,6 +93,7 @@ interface AttrDTO {
 #### Example 1: Basic User Table
 ```json
 {
+  "name": "User Management",
   "nodes": [
     {
       "id": "node-1",
@@ -145,6 +148,7 @@ interface AttrDTO {
 #### Example 2: User-Posts Relationship
 ```json
 {
+  "name": "Blog System",
   "nodes": [
     {
       "id": "node-1",
@@ -230,6 +234,7 @@ interface AttrDTO {
 #### Example 3: E-commerce Schema
 ```json
 {
+  "name": "E-commerce Database",
   "nodes": [
     {
       "id": "node-1",
@@ -405,33 +410,94 @@ interface AttrDTO {
 
 ### Local Storage Implementation
 
-To save and load the application state:
+The application uses **Zustand's persist middleware** to automatically save and restore state from local storage. The state is stored under the key `yii-migration-schema`.
+
+#### Store Configuration
+
+The store is configured with automatic persistence:
 
 ```typescript
-// Save to local storage
-const saveState = (database: Database) => {
-  localStorage.setItem('yii-migration-state', JSON.stringify(database));
-};
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-// Load from local storage
-const loadState = (): Database | null => {
-  const saved = localStorage.getItem('yii-migration-state');
-  return saved ? JSON.parse(saved) : null;
-};
+export const useSchema = create<UseSchema>()(
+  persist(
+    (set) => ({
+      schema: {
+        name: "Untitled Diagram",
+        nodes: [],
+        edges: [],
+      },
+      setDiagramName: (name) => set((state) => ({
+        schema: { ...state.schema, name }
+      })),
+      // ... other actions
+    }),
+    {
+      name: "yii-migration-schema",
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+);
+```
 
-// Example usage
-const currentState: Database = {
-  nodes: [/* your nodes */],
-  edges: [/* your edges */]
-};
+#### Usage in Components
 
-saveState(currentState);
+```typescript
+import { useSchema } from "@stores/useSchema";
 
-// Later, restore the state
-const restored = loadState();
-if (restored) {
-  // Apply restored state to your application
+function DiagramHeader() {
+  const { schema, setDiagramName } = useSchema();
+
+  return (
+    <input
+      type="text"
+      value={schema.name}
+      onChange={(e) => setDiagramName(e.target.value)}
+      placeholder="Diagram name"
+    />
+  );
 }
+
+// Access nodes and edges
+function DiagramCanvas() {
+  const { schema } = useSchema();
+  const { name, nodes, edges } = schema;
+
+  return (
+    <div>
+      <h2>{name}</h2>
+      {/* Render your diagram */}
+    </div>
+  );
+}
+```
+
+#### Manual State Operations
+
+If you need to manually save/load state (for import/export features):
+
+```typescript
+// Export current state
+const exportState = () => {
+  const { schema } = useSchema.getState();
+  const json = JSON.stringify(schema, null, 2);
+  // Download as file or copy to clipboard
+  return json;
+};
+
+// Import state from JSON
+const importState = (jsonString: string) => {
+  const imported: Database = JSON.parse(jsonString);
+  // You would need to add a setState method to your store
+  useSchema.setState({ schema: imported });
+};
+
+// Clear all data
+const clearState = () => {
+  localStorage.removeItem('yii-migration-schema');
+  window.location.reload(); // Reload to reset to initial state
+};
 ```
 
 ### Attribute Type Reference

@@ -2,6 +2,7 @@ import type { Database, Node, Attribute } from "@models/core/yii";
 
 export interface UseSchema {
   schema: Database;
+  setDiagramName: (name: string) => void;
   addNode: (node: Omit<Node, "id" | "position">) => void;
   updateNode: (id: string, data: Partial<Omit<Node, "id">>) => void;
   deleteNode: (id: string) => void;

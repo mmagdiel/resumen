@@ -1,17 +1,30 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 import type { UseSchema } from "@models/stores";
 import type { Edge, Node, Attribute } from "@models/core/yii";
 
 const initialSchema = {
+  name: "Untitled Diagram",
   nodes: [],
   edges: [],
 };
-// Node nodes
-export const useSchema = create<UseSchema>((set) => ({
-  schema: initialSchema,
 
-  addNode: (node) =>
+// Node nodes
+export const useSchema = create<UseSchema>()(
+  persist(
+    (set) => ({
+      schema: initialSchema,
+
+      setDiagramName: (name) =>
+        set((state) => ({
+          schema: {
+            ...state.schema,
+            name,
+          },
+        })),
+
+      addNode: (node) =>
     set((state) => {
       const attributes = [
         {
@@ -59,6 +72,7 @@ export const useSchema = create<UseSchema>((set) => ({
 
       return {
         schema: {
+          ...state.schema,
           nodes: state.schema.nodes.filter((node) => node.id !== id),
           edges: filteredEdges,
         },
@@ -228,4 +242,10 @@ export const useSchema = create<UseSchema>((set) => ({
         },
       };
     }),
-}));
+    }),
+    {
+      name: "yii-migration-schema",
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+);
