@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "test": "vitest",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -23,12 +24,12 @@
     "react-hook-form": "^7.56.4",
     "reactflow": "^11.11.4",
     "tailwindcss": "^4.1.7",
-    "vitest": "^3.1.4",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
     "prettier": "3.5.3",
-    "prettier-plugin-astro": "0.14.1"
+    "prettier-plugin-astro": "0.14.1",
+    "vitest": "^4.0.8"
   },
   "prettier": {
     "astroAllowShorthand": true,

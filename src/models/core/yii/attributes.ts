@@ -1,7 +1,7 @@
 import type { AttributeType } from "./types";
 
 export interface AttrDTO {
-  id: string;
+  id?: string;
   name: string;
   type: AttributeType;
   isRequired?: boolean;
@@ -14,15 +14,15 @@ export interface AttrDTO {
 }
 
 export interface NeverAttrs {
+  scale?: never;
   length?: never;
   precision?: never;
-  scale?: never;
 }
 
 export interface FlatAttrs extends AttrDTO {
+  scale?: never;
   length?: never;
   precision?: never;
-  scale?: never;
 }
 
 export interface CountAttrs extends AttrDTO, Omit<NeverAttrs, "length"> {
