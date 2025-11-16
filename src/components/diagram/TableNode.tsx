@@ -104,8 +104,8 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
                   />
                 </div>
               )}
-              {attr.isRequired && (
-                <div className="tooltip" data-tip="Required">
+              {attr.isNotNull && (
+                <div className="tooltip" data-tip="Not Null">
                   <Icon
                     size={14}
                     id="asterisk"

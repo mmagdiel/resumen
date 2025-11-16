@@ -61,7 +61,7 @@ interface AttrDTO {
   id: string;
   name: string;
   type: AttributeType;
-  isRequired?: boolean;
+  isNotNull?: boolean;
   isUnique?: boolean;
   isPrimaryKey?: boolean;
   isForeignKey?: boolean;
@@ -106,14 +106,14 @@ interface AttrDTO {
           "name": "id",
           "type": "integer",
           "isPrimaryKey": true,
-          "isRequired": true,
+          "isNotNull": true,
           "length": 11
         },
         {
           "id": "attr-2",
           "name": "username",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "isUnique": true,
           "length": 50
         },
@@ -121,7 +121,7 @@ interface AttrDTO {
           "id": "attr-3",
           "name": "email",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "isUnique": true,
           "length": 100
         },
@@ -135,7 +135,7 @@ interface AttrDTO {
           "id": "attr-5",
           "name": "created_at",
           "type": "datetime",
-          "isRequired": true,
+          "isNotNull": true,
           "precision": 0
         }
       ]
@@ -161,14 +161,14 @@ interface AttrDTO {
           "name": "id",
           "type": "integer",
           "isPrimaryKey": true,
-          "isRequired": true,
+          "isNotNull": true,
           "length": 11
         },
         {
           "id": "attr-2",
           "name": "username",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "length": 50
         }
       ]
@@ -184,14 +184,14 @@ interface AttrDTO {
           "name": "id",
           "type": "integer",
           "isPrimaryKey": true,
-          "isRequired": true,
+          "isNotNull": true,
           "length": 11
         },
         {
           "id": "attr-4",
           "name": "user_id",
           "type": "integer",
-          "isRequired": true,
+          "isNotNull": true,
           "isForeignKey": true,
           "referencesTable": "users",
           "referencesField": "id",
@@ -201,7 +201,7 @@ interface AttrDTO {
           "id": "attr-5",
           "name": "title",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "length": 200
         },
         {
@@ -247,14 +247,14 @@ interface AttrDTO {
           "name": "id",
           "type": "integer",
           "isPrimaryKey": true,
-          "isRequired": true,
+          "isNotNull": true,
           "length": 11
         },
         {
           "id": "attr-2",
           "name": "sku",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "isUnique": true,
           "length": 50
         },
@@ -262,14 +262,14 @@ interface AttrDTO {
           "id": "attr-3",
           "name": "name",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "length": 255
         },
         {
           "id": "attr-4",
           "name": "price",
           "type": "decimal",
-          "isRequired": true,
+          "isNotNull": true,
           "precision": 10,
           "scale": 2
         },
@@ -299,14 +299,14 @@ interface AttrDTO {
           "name": "id",
           "type": "integer",
           "isPrimaryKey": true,
-          "isRequired": true,
+          "isNotNull": true,
           "length": 11
         },
         {
           "id": "attr-8",
           "name": "order_number",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "isUnique": true,
           "length": 20
         },
@@ -314,7 +314,7 @@ interface AttrDTO {
           "id": "attr-9",
           "name": "total",
           "type": "money",
-          "isRequired": true,
+          "isNotNull": true,
           "precision": 19,
           "scale": 4
         },
@@ -322,7 +322,7 @@ interface AttrDTO {
           "id": "attr-10",
           "name": "status",
           "type": "string",
-          "isRequired": true,
+          "isNotNull": true,
           "length": 20,
           "defaultValue": "pending"
         },
@@ -330,7 +330,7 @@ interface AttrDTO {
           "id": "attr-11",
           "name": "created_at",
           "type": "datetime",
-          "isRequired": true,
+          "isNotNull": true,
           "precision": 0
         }
       ]
@@ -346,14 +346,14 @@ interface AttrDTO {
           "name": "id",
           "type": "integer",
           "isPrimaryKey": true,
-          "isRequired": true,
+          "isNotNull": true,
           "length": 11
         },
         {
           "id": "attr-13",
           "name": "order_id",
           "type": "integer",
-          "isRequired": true,
+          "isNotNull": true,
           "isForeignKey": true,
           "referencesTable": "orders",
           "referencesField": "id",
@@ -363,7 +363,7 @@ interface AttrDTO {
           "id": "attr-14",
           "name": "product_id",
           "type": "integer",
-          "isRequired": true,
+          "isNotNull": true,
           "isForeignKey": true,
           "referencesTable": "products",
           "referencesField": "id",
@@ -373,14 +373,14 @@ interface AttrDTO {
           "id": "attr-15",
           "name": "quantity",
           "type": "integer",
-          "isRequired": true,
+          "isNotNull": true,
           "length": 11
         },
         {
           "id": "attr-16",
           "name": "unit_price",
           "type": "decimal",
-          "isRequired": true,
+          "isNotNull": true,
           "precision": 10,
           "scale": 2
         }

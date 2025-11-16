@@ -29,11 +29,13 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
           name: table.name,
           description: table.description,
           withTimestamps: table.withTimestamps || false,
+          withBlameable: table.withBlameable || false,
         }
       : {
           name: "",
           description: "",
           withTimestamps: false,
+          withBlameable: false,
         },
   });
 
@@ -99,6 +101,19 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
           />
           <div className="tooltip" data-tip="Adds created_at and updated_at fields">
             <span className="label-text">With Timestamp Behavior</span>
+          </div>
+        </label>
+      </div>
+
+      <div className="form-control">
+        <label className="label cursor-pointer justify-start space-x-2">
+          <input
+            type="checkbox"
+            className="checkbox"
+            {...register("withBlameable")}
+          />
+          <div className="tooltip" data-tip="Adds created_by and updated_by fields">
+            <span className="label-text">With Blameable Behavior</span>
           </div>
         </label>
       </div>

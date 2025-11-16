@@ -1,4 +1,4 @@
-import type { Attribute, AttrDTO } from "./attributes";
+import type { Attribute } from "./attributes";
 
 export type Attributes = Attribute[];
 
@@ -13,6 +13,7 @@ export interface Node {
   position: Position;
   description: string;
   withTimestamps?: boolean;
+  withBlameable?: boolean;
   attributes: Attributes;
 }
 

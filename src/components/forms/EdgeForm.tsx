@@ -36,7 +36,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
     defaultValues: attribute ? {
       name: attribute.name,
       type: attribute.type,
-      isRequired: attribute.isRequired,
+      isNotNull: attribute.isNotNull,
       isUnique: attribute.isUnique,
       isPrimaryKey: attribute.isPrimaryKey,
       isForeignKey: attribute.isForeignKey,
@@ -46,7 +46,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
     } : {
       name: '',
       type: 'string',
-      isRequired: false,
+      isNotNull: false,
       isUnique: false,
       isPrimaryKey: false,
       isForeignKey: false,
@@ -61,7 +61,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
   // Update requirements when primary key is toggled
   useEffect(() => {
     if (isPrimaryKey) {
-      setValue('isRequired', true);
+      setValue('isNotNull', true);
       setValue('isUnique', true);
     }
   }, [isPrimaryKey, setValue]);
@@ -130,10 +130,10 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
           <input
             type="checkbox"
             className="checkbox checkbox-primary"
-            {...register('isRequired')}
+            {...register('isNotNull')}
             disabled={isPrimaryKey}
           />
-          <span className="label-text">Required</span>
+          <span className="label-text">Not Null</span>
         </label>
       </div>
       

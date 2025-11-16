@@ -1,17 +1,17 @@
-import { getRequired } from "./getRequired";
+import { getNotNull } from "./getNotNull";
 import { describe, expect, it } from "vitest";
 
-describe("getRequired", () => {
+describe("getNotNull", () => {
   const name = "status";
   const type = "string";
   it("should work", () => {
-    const actualResult = getRequired({ name, type, isRequired: true });
+    const actualResult = getNotNull({ name, type, isNotNull: true });
     const expectedResult = ":notNull";
     expect(actualResult).toBe(expectedResult);
   });
 
   it("should don't work", () => {
-    const actualResult = getRequired({ name, type });
+    const actualResult = getNotNull({ name, type });
     const expectedResult = "";
     expect(actualResult).toBe(expectedResult);
   });

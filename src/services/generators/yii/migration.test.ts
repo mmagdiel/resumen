@@ -36,8 +36,8 @@ describe("migrationCmdYiiGenerate", () => {
 
   it("add migrate with required fields", () => {
     const actualResult = migrationCmdYiiGenerate("employees", [
-      { name: "email", type: "string", length: 255, isRequired: true },
-      { name: "hire_date", type: "date", isRequired: true },
+      { name: "email", type: "string", length: 255, isNotNull: true },
+      { name: "hire_date", type: "date", isNotNull: true },
     ]);
     const expectedResult =
       'yii migrate/create create_employees_table --fields="email:string(255):notNull,hire_date:date:notNull"';

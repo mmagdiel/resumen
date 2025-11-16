@@ -1,5 +1,5 @@
 import type { GetIcon } from "@models/services";
-import { mapperIcon } from "@models/icons";
+import { mapperIcon } from "../models/icons";
 
 export const getIcon: GetIcon = (icon, size, color, className) => {
   const fill = `#${color}`;

@@ -1,11 +1,10 @@
-//import type { AttributeType } from "./types";
 import type { CountableAttrType, ScatterableAttrType } from "./types";
 import type { LackableAttrType, ScalableAttrType } from "./types";
 
-export interface AttrDTO {
+interface AttrDTO {
   id?: string;
   name: string;
-  isRequired?: boolean;
+  isNotNull?: boolean;
   isUnique?: boolean;
   isPrimaryKey?: boolean;
   isForeignKey?: boolean;
@@ -15,7 +14,7 @@ export interface AttrDTO {
   defaultValue?: string | number | null;
 }
 
-export interface NeverAttrs {
+interface NeverAttrs {
   scale?: never;
   length?: never;
   precision?: never;
