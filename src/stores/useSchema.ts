@@ -24,6 +24,11 @@ export const useSchema = create<UseSchema>()(
           },
         })),
 
+      loadDiagram: (diagram) =>
+        set(() => ({
+          schema: diagram,
+        })),
+
       addNode: (node) =>
         set((state) => {
           const attributes = [

@@ -26,11 +26,14 @@ interface Database {
 Represents a database table with its attributes and position on the canvas.
 ```typescript
 interface Node {
-  id: string;              // Unique identifier
-  name: string;            // Table name
-  position: Position;      // Canvas position
-  description: string;     // Table description
-  attributes: Attribute[]; // Column definitions
+  id: string;                 // Unique identifier
+  name: string;               // Table name
+  position: Position;         // Canvas position
+  description: string;        // Table description
+  withTimestamps?: boolean;   // Auto-add created_at/updated_at timestamps
+  withBlameable?: boolean;    // Auto-add created_by/updated_by fields
+  hideIdInCommand?: boolean;  // Hide ID field in migration command
+  attributes: Attribute[];    // Column definitions
 }
 
 interface Position {
@@ -58,39 +61,41 @@ Represents a table column. Attributes have different types based on their data r
 **Base Attribute Properties:**
 ```typescript
 interface AttrDTO {
-  id: string;
-  name: string;
-  type: AttributeType;
-  isNotNull?: boolean;
-  isUnique?: boolean;
-  isPrimaryKey?: boolean;
-  isForeignKey?: boolean;
-  referencesTable?: string;
-  referencesField?: string;
-  defaultValue?: string | number | null;
+  id?: string;                           // Optional unique identifier
+  name: string;                          // Column name
+  type: AttributeType;                   // Data type
+  isNotNull?: boolean;                   // NOT NULL constraint
+  isUnique?: boolean;                    // UNIQUE constraint
+  isPrimaryKey?: boolean;                // PRIMARY KEY constraint
+  isForeignKey?: boolean;                // FOREIGN KEY constraint
+  isUnsigned?: boolean;                  // UNSIGNED constraint (for numeric types)
+  referencesTable?: string;              // Referenced table for foreign keys
+  referencesField?: string;              // Referenced field for foreign keys
+  defaultValue?: string | number | null; // Default value
 }
 ```
 
 **Attribute Type Variants:**
 
-- **FlatAttrs**: Basic types without extra parameters
-  - Types: `text`, `date`, `boolean`
+- **LackAttrs** (Lackable): Basic types without extra parameters
+  - Types: `text`, `date`, `boolean`, `json`
+  - No additional properties required
 
-- **CountAttrs**: Types that require length specification
-  - Types: `char`, `string`, `smallint`, `integer`, `bigint`, `binary`
-  - Additional property: `length: number`
+- **CountAttrs** (Countable): Types that may require length specification
+  - Types: `char`, `string`, `binary`, `tinyInteger`, `smallint`, `integer`, `bigint`, `primaryKey`, `bigPrimaryKey`
+  - Additional property: `length?: number`
 
-- **AccuracyAttrs**: Types that require precision
-  - Types: `datetime`, `time`, `timestamp`, `float`
-  - Additional property: `precision: number`
+- **ScatterableAttrs** (Scatterable): Types that may require precision
+  - Types: `datetime`, `time`, `timestamp`, `float`, `double`
+  - Additional property: `precision?: number`
 
-- **ScaleAttrs**: Types that require both precision and scale
+- **ScaleAttrs** (Scalable): Types that may require both precision and scale
   - Types: `decimal`, `money`
-  - Additional properties: `precision: number`, `scale: number`
+  - Additional properties: `precision?: number`, `scale?: number`
 
 ### State Examples
 
-#### Example 1: Basic User Table
+#### Example 1: Basic User Table with Timestamps
 ```json
 {
   "name": "User Management",
@@ -100,12 +105,13 @@ interface AttrDTO {
       "name": "users",
       "position": { "x": 100, "y": 100 },
       "description": "User accounts table",
+      "withTimestamps": true,
+      "withBlameable": false,
       "attributes": [
         {
           "id": "attr-1",
           "name": "id",
-          "type": "integer",
-          "isPrimaryKey": true,
+          "type": "primaryKey",
           "isNotNull": true,
           "length": 11
         },
@@ -127,16 +133,21 @@ interface AttrDTO {
         },
         {
           "id": "attr-4",
+          "name": "age",
+          "type": "tinyInteger",
+          "isUnsigned": true,
+          "length": 3
+        },
+        {
+          "id": "attr-5",
           "name": "is_active",
           "type": "boolean",
           "defaultValue": true
         },
         {
-          "id": "attr-5",
-          "name": "created_at",
-          "type": "datetime",
-          "isNotNull": true,
-          "precision": 0
+          "id": "attr-6",
+          "name": "preferences",
+          "type": "json"
         }
       ]
     }
@@ -145,7 +156,7 @@ interface AttrDTO {
 }
 ```
 
-#### Example 2: User-Posts Relationship
+#### Example 2: Blog System with Blameable Fields
 ```json
 {
   "name": "Blog System",
@@ -155,14 +166,13 @@ interface AttrDTO {
       "name": "users",
       "position": { "x": 100, "y": 100 },
       "description": "User accounts",
+      "withTimestamps": true,
       "attributes": [
         {
           "id": "attr-1",
           "name": "id",
-          "type": "integer",
-          "isPrimaryKey": true,
-          "isNotNull": true,
-          "length": 11
+          "type": "bigPrimaryKey",
+          "isNotNull": true
         },
         {
           "id": "attr-2",
@@ -178,24 +188,25 @@ interface AttrDTO {
       "name": "posts",
       "position": { "x": 400, "y": 100 },
       "description": "User posts",
+      "withTimestamps": true,
+      "withBlameable": true,
+      "hideIdInCommand": false,
       "attributes": [
         {
           "id": "attr-3",
           "name": "id",
-          "type": "integer",
-          "isPrimaryKey": true,
-          "isNotNull": true,
-          "length": 11
+          "type": "bigPrimaryKey",
+          "isNotNull": true
         },
         {
           "id": "attr-4",
           "name": "user_id",
-          "type": "integer",
+          "type": "bigint",
           "isNotNull": true,
+          "isUnsigned": true,
           "isForeignKey": true,
           "referencesTable": "users",
-          "referencesField": "id",
-          "length": 11
+          "referencesField": "id"
         },
         {
           "id": "attr-5",
@@ -211,6 +222,13 @@ interface AttrDTO {
         },
         {
           "id": "attr-7",
+          "name": "view_count",
+          "type": "integer",
+          "isUnsigned": true,
+          "defaultValue": 0
+        },
+        {
+          "id": "attr-8",
           "name": "published_at",
           "type": "timestamp",
           "precision": 0
@@ -231,7 +249,7 @@ interface AttrDTO {
 }
 ```
 
-#### Example 3: E-commerce Schema
+#### Example 3: E-commerce Schema with Advanced Types
 ```json
 {
   "name": "E-commerce Database",
@@ -241,14 +259,13 @@ interface AttrDTO {
       "name": "products",
       "position": { "x": 100, "y": 100 },
       "description": "Product catalog",
+      "withTimestamps": true,
       "attributes": [
         {
           "id": "attr-1",
           "name": "id",
-          "type": "integer",
-          "isPrimaryKey": true,
-          "isNotNull": true,
-          "length": 11
+          "type": "bigPrimaryKey",
+          "isNotNull": true
         },
         {
           "id": "attr-2",
@@ -275,16 +292,27 @@ interface AttrDTO {
         },
         {
           "id": "attr-5",
-          "name": "stock",
-          "type": "integer",
-          "defaultValue": 0,
-          "length": 11
+          "name": "weight",
+          "type": "double",
+          "precision": 8
         },
         {
           "id": "attr-6",
+          "name": "stock",
+          "type": "integer",
+          "isUnsigned": true,
+          "defaultValue": 0
+        },
+        {
+          "id": "attr-7",
           "name": "is_available",
           "type": "boolean",
           "defaultValue": true
+        },
+        {
+          "id": "attr-8",
+          "name": "metadata",
+          "type": "json"
         }
       ]
     },
@@ -293,17 +321,17 @@ interface AttrDTO {
       "name": "orders",
       "position": { "x": 450, "y": 100 },
       "description": "Customer orders",
+      "withTimestamps": true,
+      "withBlameable": true,
       "attributes": [
         {
-          "id": "attr-7",
+          "id": "attr-9",
           "name": "id",
-          "type": "integer",
-          "isPrimaryKey": true,
-          "isNotNull": true,
-          "length": 11
+          "type": "bigPrimaryKey",
+          "isNotNull": true
         },
         {
-          "id": "attr-8",
+          "id": "attr-10",
           "name": "order_number",
           "type": "string",
           "isNotNull": true,
@@ -311,7 +339,7 @@ interface AttrDTO {
           "length": 20
         },
         {
-          "id": "attr-9",
+          "id": "attr-11",
           "name": "total",
           "type": "money",
           "isNotNull": true,
@@ -319,19 +347,12 @@ interface AttrDTO {
           "scale": 4
         },
         {
-          "id": "attr-10",
+          "id": "attr-12",
           "name": "status",
           "type": "string",
           "isNotNull": true,
           "length": 20,
           "defaultValue": "pending"
-        },
-        {
-          "id": "attr-11",
-          "name": "created_at",
-          "type": "datetime",
-          "isNotNull": true,
-          "precision": 0
         }
       ]
     },
@@ -340,41 +361,34 @@ interface AttrDTO {
       "name": "order_items",
       "position": { "x": 275, "y": 300 },
       "description": "Order line items",
+      "hideIdInCommand": true,
       "attributes": [
-        {
-          "id": "attr-12",
-          "name": "id",
-          "type": "integer",
-          "isPrimaryKey": true,
-          "isNotNull": true,
-          "length": 11
-        },
         {
           "id": "attr-13",
           "name": "order_id",
-          "type": "integer",
+          "type": "bigint",
           "isNotNull": true,
+          "isUnsigned": true,
           "isForeignKey": true,
           "referencesTable": "orders",
-          "referencesField": "id",
-          "length": 11
+          "referencesField": "id"
         },
         {
           "id": "attr-14",
           "name": "product_id",
-          "type": "integer",
+          "type": "bigint",
           "isNotNull": true,
+          "isUnsigned": true,
           "isForeignKey": true,
           "referencesTable": "products",
-          "referencesField": "id",
-          "length": 11
+          "referencesField": "id"
         },
         {
           "id": "attr-15",
           "name": "quantity",
-          "type": "integer",
+          "type": "smallint",
           "isNotNull": true,
-          "length": 11
+          "isUnsigned": true
         },
         {
           "id": "attr-16",
@@ -407,6 +421,98 @@ interface AttrDTO {
   ]
 }
 ```
+
+#### Example 4: Scientific Data with All New Types
+```json
+{
+  "name": "Scientific Research Database",
+  "nodes": [
+    {
+      "id": "node-1",
+      "name": "experiments",
+      "position": { "x": 100, "y": 100 },
+      "description": "Scientific experiments tracking",
+      "withTimestamps": true,
+      "withBlameable": true,
+      "attributes": [
+        {
+          "name": "id",
+          "type": "bigPrimaryKey"
+        },
+        {
+          "name": "experiment_code",
+          "type": "char",
+          "isNotNull": true,
+          "isUnique": true,
+          "length": 10
+        },
+        {
+          "name": "temperature",
+          "type": "double",
+          "precision": 10
+        },
+        {
+          "name": "pressure",
+          "type": "float",
+          "precision": 6
+        },
+        {
+          "name": "sample_count",
+          "type": "tinyInteger",
+          "isUnsigned": true,
+          "defaultValue": 1
+        },
+        {
+          "name": "cost",
+          "type": "money",
+          "precision": 12,
+          "scale": 4
+        },
+        {
+          "name": "start_date",
+          "type": "date"
+        },
+        {
+          "name": "start_time",
+          "type": "time",
+          "precision": 3
+        },
+        {
+          "name": "is_completed",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "name": "results",
+          "type": "json"
+        },
+        {
+          "name": "notes",
+          "type": "text"
+        },
+        {
+          "name": "data_hash",
+          "type": "binary",
+          "length": 32
+        }
+      ]
+    }
+  ],
+  "edges": []
+}
+```
+
+**This example demonstrates:**
+- `bigPrimaryKey` for auto-increment primary key
+- `char` for fixed-length codes
+- `double` and `float` for high-precision measurements
+- `tinyInteger` with `isUnsigned` for small positive values
+- `money` type for currency with precision
+- `date` and `time` types for temporal data
+- `json` type for structured data
+- `binary` type for hash storage
+- `withTimestamps` and `withBlameable` flags
+- Optional `id` field (automatically generated)
 
 ### Local Storage Implementation
 
@@ -504,20 +610,25 @@ const clearState = () => {
 
 | Type | Category | Additional Properties | Example Use Case |
 |------|----------|----------------------|------------------|
-| `text` | Flat | None | Long descriptions |
-| `date` | Flat | None | Birth dates |
-| `boolean` | Flat | None | Active flags |
-| `char` | Countable | `length` | Fixed-size codes |
-| `string` | Countable | `length` | Names, emails |
-| `smallint` | Countable | `length` | Small numbers |
-| `integer` | Countable | `length` | IDs, counts |
-| `bigint` | Countable | `length` | Large numbers |
-| `binary` | Countable | `length` | Binary data |
-| `datetime` | Accuracy | `precision` | Created timestamps |
-| `time` | Accuracy | `precision` | Time of day |
-| `timestamp` | Accuracy | `precision` | Unix timestamps |
-| `float` | Accuracy | `precision` | Measurements |
-| `decimal` | Scalable | `precision`, `scale` | Prices |
+| `text` | Lackable | None | Long descriptions, comments |
+| `date` | Lackable | None | Birth dates, event dates |
+| `boolean` | Lackable | None | Active flags, status toggles |
+| `json` | Lackable | None | JSON data, configuration objects |
+| `char` | Countable | `length` | Fixed-size codes (e.g., country codes) |
+| `string` | Countable | `length` | Names, emails, variable-length text |
+| `binary` | Countable | `length` | Binary data, file hashes |
+| `tinyInteger` | Countable | `length` | Very small numbers (0-255) |
+| `smallint` | Countable | `length` | Small numbers (-32K to 32K) |
+| `integer` | Countable | `length` | Standard IDs, counts |
+| `bigint` | Countable | `length` | Large numbers, big IDs |
+| `primaryKey` | Countable | `length` | Auto-increment primary key (integer) |
+| `bigPrimaryKey` | Countable | `length` | Auto-increment primary key (bigint) |
+| `datetime` | Scatterable | `precision` | Created/updated timestamps |
+| `time` | Scatterable | `precision` | Time of day |
+| `timestamp` | Scatterable | `precision` | Unix timestamps |
+| `float` | Scatterable | `precision` | Approximate decimal numbers |
+| `double` | Scatterable | `precision` | High-precision floating point |
+| `decimal` | Scalable | `precision`, `scale` | Exact decimal numbers, prices |
 | `money` | Scalable | `precision`, `scale` | Currency values |
 
 ## 🚀 Project Structure

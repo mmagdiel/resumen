@@ -3,19 +3,17 @@ import { Theme, Command } from "@components/buttons";
 import { Icon, Modal, DiagramNameInput } from "@components";
 ---
 
-<header class="navbar bg-base-200 shadow-sm z-10">
-  <div class="flex-1">
-    <div class="flex items-center space-x-2 px-4">
-      <Icon id="logo" size={48} />
-      <h1 class="text-xl font-bold">Yii Migration Designer</h1>
-    </div>
+<header class="navbar bg-base-200 justify-between shadow-sm z-10">
+  <div class="flex items-center space-x-2 px-4">
+    <Icon id="logo" size={48} />
+    <h1 class="text-xl font-bold">Yii Migration Designer</h1>
   </div>
 
-  <div class="flex-1 flex justify-center px-4">
+  <div class="justify-center px-4">
     <DiagramNameInput client:load />
   </div>
 
-  <div class="flex-none gap-2">
+  <div class="gap-2">
     <Command client:only />
     <Theme client:only />
   </div>

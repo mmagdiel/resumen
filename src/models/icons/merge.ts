@@ -6,6 +6,7 @@ export const mapperIcon: MapperIcon = {
   x: "0 0 24 24",
   key: "0 0 24 24",
   sun: "0 0 24 24",
+  eye: "0 0 24 24",
   copy: "0 0 24 24",
   edit: "0 0 24 24",
   moon: "0 0 24 24",

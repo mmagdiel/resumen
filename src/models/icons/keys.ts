@@ -1,4 +1,4 @@
-const base = ["key", "asterisk", "logo"];
+const base = ["key", "asterisk", "logo", "eye"];
 const edit = ["edit", "trash", "copy"];
 const db = ["database", "command", "fingerprint"];
 const appearance = ["plus", "x", "sun", "moon"];
