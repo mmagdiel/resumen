@@ -1,5 +1,6 @@
 const chars = ["char", "string"];
-const integers = ["smallint", "integer", "bigint"];
+const ints = ["binary", "tinyInteger", "smallint", "integer", "bigint"];
+const keys = ["bigPrimaryKey", "primaryKey"];
 
-export const CountableAttrTypes = [...integers, ...chars, "binary"] as const;
+export const CountableAttrTypes = [...ints, ...chars, ...keys] as const;
 export type CountableAttrType = (typeof CountableAttrTypes)[number];

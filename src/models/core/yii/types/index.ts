@@ -1,5 +1,5 @@
-export * from "./accuraciable";
+export * from "./scatterable";
 export * from "./countable";
-export * from "./flattable";
+export * from "./lackable";
 export * from "./scalable";
 export * from "./merge";

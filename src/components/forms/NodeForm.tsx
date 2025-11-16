@@ -28,10 +28,12 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
       ? {
           name: table.name,
           description: table.description,
+          withTimestamps: table.withTimestamps || false,
         }
       : {
           name: "",
           description: "",
+          withTimestamps: false,
         },
   });
 
@@ -86,6 +88,19 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
           {...register("description")}
           placeholder="Describe the purpose of this table"
         />
+      </div>
+
+      <div className="form-control">
+        <label className="label cursor-pointer justify-start space-x-2">
+          <input
+            type="checkbox"
+            className="checkbox"
+            {...register("withTimestamps")}
+          />
+          <div className="tooltip" data-tip="Adds created_at and updated_at fields">
+            <span className="label-text">With Timestamp Behavior</span>
+          </div>
+        </label>
       </div>
 
       <div className="flex justify-end space-x-2 pt-4">

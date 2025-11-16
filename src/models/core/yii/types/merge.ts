@@ -1,10 +1,10 @@
-import { FlattableAttrTypes } from "./flattable";
-import { CountableAttrTypes } from "./countable";
-import { AccuraciableAttrTypes } from "./accuraciable";
+import { LackableAttrTypes } from "./lackable";
 import { ScalableAttrTypes } from "./scalable";
+import { CountableAttrTypes } from "./countable";
+import { ScatterableAttrTypes } from "./scatterable";
 
-const withoutFlatable = [...FlattableAttrTypes, ...CountableAttrTypes];
-const withFlatable = [...AccuraciableAttrTypes, ...ScalableAttrTypes];
+const countable = [...LackableAttrTypes, ...CountableAttrTypes];
+const uncountable = [...ScatterableAttrTypes, ...ScalableAttrTypes];
 
-export const AttributeTypes = [...withoutFlatable, ...withFlatable] as const;
+export const AttributeTypes = [...countable, ...uncountable] as const;
 export type AttributeType = (typeof AttributeTypes)[number];

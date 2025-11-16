@@ -1,13 +1,15 @@
-import type { AttributeType } from "./types";
+//import type { AttributeType } from "./types";
+import type { CountableAttrType, ScatterableAttrType } from "./types";
+import type { LackableAttrType, ScalableAttrType } from "./types";
 
 export interface AttrDTO {
   id?: string;
   name: string;
-  type: AttributeType;
   isRequired?: boolean;
   isUnique?: boolean;
   isPrimaryKey?: boolean;
   isForeignKey?: boolean;
+  isUnsigned?: boolean;
   referencesTable?: string;
   referencesField?: string;
   defaultValue?: string | number | null;
@@ -19,25 +21,28 @@ export interface NeverAttrs {
   precision?: never;
 }
 
-export interface FlatAttrs extends AttrDTO {
-  scale?: never;
-  length?: never;
-  precision?: never;
+export interface LackAttrs extends AttrDTO, NeverAttrs {
+  type: LackableAttrType;
 }
 
 export interface CountAttrs extends AttrDTO, Omit<NeverAttrs, "length"> {
-  length: number;
+  type: CountableAttrType;
+  length?: number;
 }
 
-export interface AccuracyAttrs extends AttrDTO, Omit<NeverAttrs, "precision"> {
-  precision: number;
+export interface ScatterableAttrs
+  extends AttrDTO,
+    Omit<NeverAttrs, "precision"> {
+  type: ScatterableAttrType;
+  precision?: number;
 }
 
 export interface ScaleAttrs
   extends AttrDTO,
     Omit<NeverAttrs, "precision" | "scale"> {
-  scale: number;
-  precision: number;
+  type: ScalableAttrType;
+  scale?: number;
+  precision?: number;
 }
 
-export type Attribute = FlatAttrs | CountAttrs | AccuracyAttrs | ScaleAttrs;
+export type Attribute = LackAttrs | CountAttrs | ScatterableAttrs | ScaleAttrs;

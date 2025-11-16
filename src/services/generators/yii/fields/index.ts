@@ -4,3 +4,4 @@ export * from './getPrimaryKey';
 export * from './getRequired';
 export * from './getType';
 export * from './getUnique';
+export * from './getUnsigned';

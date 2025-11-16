@@ -12,6 +12,7 @@ export interface Node {
   name: string;
   position: Position;
   description: string;
+  withTimestamps?: boolean;
   attributes: Attributes;
 }
 
@@ -33,5 +34,5 @@ export interface Database {
   edges: Edges;
 }
 
-export type AttrFormValues = Omit<AttrDTO, "id">;
+export type AttrFormValues = Omit<Attribute, "id">;
 export type NodeFormValues = Omit<Node, "id" | "position">;

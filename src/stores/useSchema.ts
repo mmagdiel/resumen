@@ -37,6 +37,27 @@ export const useSchema = create<UseSchema>()(
           isForeignKey: false,
         },
       ];
+
+      // Add timestamp fields if enabled
+      if (node.withTimestamps) {
+        attributes.push({
+          id: `${node.name}-created_at`,
+          name: "created_at",
+          type: "integer",
+          isRequired: true,
+          isUnsigned: true,
+          isForeignKey: false,
+        });
+        attributes.push({
+          id: `${node.name}-updated_at`,
+          name: "updated_at",
+          type: "integer",
+          isRequired: true,
+          isUnsigned: true,
+          isForeignKey: false,
+        });
+      }
+
       const id = node.name.toLowerCase().replace(/\s+/g, "_");
       const newNode: Node = {
         ...node,
@@ -54,14 +75,58 @@ export const useSchema = create<UseSchema>()(
     }),
 
   updateNode: (id, data) =>
-    set((state) => ({
-      schema: {
-        ...state.schema,
-        nodes: state.schema.nodes.map((table) =>
-          table.id === id ? { ...table, ...data } : table,
-        ),
-      },
-    })),
+    set((state) => {
+      const table = state.schema.nodes.find((t) => t.id === id);
+      if (!table) return state;
+
+      let updatedAttributes = [...table.attributes];
+
+      // Handle timestamp behavior changes
+      if (data.withTimestamps !== undefined && data.withTimestamps !== table.withTimestamps) {
+        if (data.withTimestamps) {
+          // Add timestamp fields if not already present
+          const hasCreatedAt = updatedAttributes.some((attr) => attr.name === "created_at");
+          const hasUpdatedAt = updatedAttributes.some((attr) => attr.name === "updated_at");
+
+          if (!hasCreatedAt) {
+            updatedAttributes.push({
+              id: `${table.name}-created_at`,
+              name: "created_at",
+              type: "integer",
+              isRequired: true,
+              isUnsigned: true,
+              isForeignKey: false,
+            });
+          }
+          if (!hasUpdatedAt) {
+            updatedAttributes.push({
+              id: `${table.name}-updated_at`,
+              name: "updated_at",
+              type: "integer",
+              isRequired: true,
+              isUnsigned: true,
+              isForeignKey: false,
+            });
+          }
+        } else {
+          // Remove timestamp fields
+          updatedAttributes = updatedAttributes.filter(
+            (attr) => attr.name !== "created_at" && attr.name !== "updated_at",
+          );
+        }
+      }
+
+      return {
+        schema: {
+          ...state.schema,
+          nodes: state.schema.nodes.map((node) =>
+            node.id === id
+              ? { ...node, ...data, attributes: updatedAttributes }
+              : node,
+          ),
+        },
+      };
+    }),
 
   deleteNode: (id) =>
     set((state) => {
