@@ -14,7 +14,7 @@ export const Modal = () => {
     const table = schema.nodes.find((t: Node) => t.id === selectedTable);
     if (!table) return "";
 
-    return migrationCmdYiiGenerate(table.name, table.attributes);
+    return migrationCmdYiiGenerate(table.name, table.attributes, table.hideIdInCommand ?? true);
   };
   return (
     <dialog

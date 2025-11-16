@@ -14,6 +14,7 @@ export interface Node {
   description: string;
   withTimestamps?: boolean;
   withBlameable?: boolean;
+  hideIdInCommand?: boolean;
   attributes: Attributes;
 }
 

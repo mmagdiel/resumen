@@ -7,21 +7,14 @@ describe("getPrimaryKey", () => {
   it("should work", () => {
     const type = "integer";
     const actualResult = getPrimaryKey({ name, type, isPrimaryKey: true });
-    const expectedResult = ":primaryKey";
+    const expectedResult = "status:primaryKey";
     expect(actualResult).toBe(expectedResult);
   });
 
   it("should work", () => {
     const type = "string";
     const actualResult = getPrimaryKey({ name, type, isPrimaryKey: true });
-    const expectedResult = ":bigPrimaryKey";
-    expect(actualResult).toBe(expectedResult);
-  });
-
-  it("should don't work", () => {
-    const type = "string";
-    const actualResult = getPrimaryKey({ name, type });
-    const expectedResult = "";
+    const expectedResult = "status:bigPrimaryKey";
     expect(actualResult).toBe(expectedResult);
   });
 });

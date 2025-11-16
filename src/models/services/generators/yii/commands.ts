@@ -4,4 +4,5 @@ export type FieldsGenerate = (attributes: Attribute[]) => string;
 export type MigrationCmdYiiGenerate = (
   name: string,
   attributes: Attribute[],
+  hideId?: boolean,
 ) => string;

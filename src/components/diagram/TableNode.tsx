@@ -31,8 +31,8 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
   };
 
   const handleCopyCommand = () => {
-    const { name, attributes } = data;
-    const command = migrationCmdYiiGenerate(name, attributes);
+    const { name, attributes, hideIdInCommand } = data;
+    const command = migrationCmdYiiGenerate(name, attributes, hideIdInCommand ?? true);
     navigator.clipboard.writeText(command);
 
     // Show toast or some indicator

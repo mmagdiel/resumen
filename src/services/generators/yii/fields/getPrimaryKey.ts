@@ -1,10 +1,6 @@
 import type { GetPrimaryKey } from "@/models";
 
 export const getPrimaryKey: GetPrimaryKey = (attr) => {
-  const { type, isPrimaryKey } = attr;
-  return isPrimaryKey
-    ? type === "integer"
-      ? `:primaryKey`
-      : `:bigPrimaryKey`
-    : ``;
+  const { type, name } = attr;
+  return type === "integer" ? `${name}:primaryKey` : `${name}:bigPrimaryKey`;
 };

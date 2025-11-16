@@ -38,7 +38,7 @@ describe("fieldsGenerate", () => {
     const actualResult = fieldsGenerate([
       { name: "id", type: "integer", isPrimaryKey: true },
     ]);
-    const expectedResult = "id:integer:primaryKey";
+    const expectedResult = "id:primaryKey";
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -105,7 +105,13 @@ describe("fieldsGenerate", () => {
   it("should handle complex example with all field types", () => {
     const actualResult = fieldsGenerate([
       { name: "id", type: "integer", isPrimaryKey: true },
-      { name: "username", type: "string", length: 50, isNotNull: true, isUnique: true },
+      {
+        name: "username",
+        type: "string",
+        length: 50,
+        isNotNull: true,
+        isUnique: true,
+      },
       { name: "email", type: "string", length: 100, isNotNull: true },
       { name: "age", type: "integer", isUnsigned: true },
       { name: "status", type: "string", length: 20, defaultValue: "pending" },
@@ -118,13 +124,19 @@ describe("fieldsGenerate", () => {
       },
     ]);
     const expectedResult =
-      "id:integer:primaryKey,username:string(50):notNull:unique,email:string(100):notNull,age:integer:unsigned,status:string(20):defaultValue(pending),role_id:integer:foreignKey(roles)";
+      "id:primaryKey,username:string(50):notNull:unique,email:string(100):notNull,age:integer:unsigned,status:string(20):defaultValue(pending),role_id:integer:foreignKey(roles)";
     expect(actualResult).toBe(expectedResult);
   });
 
   it("should handle decimal type with precision and scale", () => {
     const actualResult = fieldsGenerate([
-      { name: "price", type: "decimal", precision: 10, scale: 2, isNotNull: true },
+      {
+        name: "price",
+        type: "decimal",
+        precision: 10,
+        scale: 2,
+        isNotNull: true,
+      },
       { name: "tax", type: "decimal", precision: 5, scale: 2 },
     ]);
     const expectedResult = "price:decimal(10,2):notNull,tax:decimal(5,2)";
@@ -133,8 +145,18 @@ describe("fieldsGenerate", () => {
 
   it("should handle timestamp behavior fields", () => {
     const actualResult = fieldsGenerate([
-      { name: "created_at", type: "integer", isNotNull: true, isUnsigned: true },
-      { name: "updated_at", type: "integer", isNotNull: true, isUnsigned: true },
+      {
+        name: "created_at",
+        type: "integer",
+        isNotNull: true,
+        isUnsigned: true,
+      },
+      {
+        name: "updated_at",
+        type: "integer",
+        isNotNull: true,
+        isUnsigned: true,
+      },
     ]);
     const expectedResult =
       "created_at:integer:notNull:unsigned,updated_at:integer:notNull:unsigned";
@@ -143,8 +165,18 @@ describe("fieldsGenerate", () => {
 
   it("should handle blameable behavior fields", () => {
     const actualResult = fieldsGenerate([
-      { name: "created_by", type: "integer", isNotNull: true, isUnsigned: true },
-      { name: "updated_by", type: "integer", isNotNull: true, isUnsigned: true },
+      {
+        name: "created_by",
+        type: "integer",
+        isNotNull: true,
+        isUnsigned: true,
+      },
+      {
+        name: "updated_by",
+        type: "integer",
+        isNotNull: true,
+        isUnsigned: true,
+      },
     ]);
     const expectedResult =
       "created_by:integer:notNull:unsigned,updated_by:integer:notNull:unsigned";

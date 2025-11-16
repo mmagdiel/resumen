@@ -30,12 +30,14 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
           description: table.description,
           withTimestamps: table.withTimestamps || false,
           withBlameable: table.withBlameable || false,
+          hideIdInCommand: table.hideIdInCommand ?? true,
         }
       : {
           name: "",
           description: "",
           withTimestamps: false,
           withBlameable: false,
+          hideIdInCommand: true,
         },
   });
 
@@ -90,6 +92,19 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
           {...register("description")}
           placeholder="Describe the purpose of this table"
         />
+      </div>
+
+      <div className="form-control">
+        <label className="label cursor-pointer justify-start space-x-2">
+          <input
+            type="checkbox"
+            className="checkbox"
+            {...register("hideIdInCommand")}
+          />
+          <div className="tooltip" data-tip="Hide ID field from migration command">
+            <span className="label-text">Hide ID in Command</span>
+          </div>
+        </label>
       </div>
 
       <div className="form-control">
