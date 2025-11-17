@@ -2,6 +2,10 @@ import type { Node, Database } from "@models/core/yii";
 
 import { useState } from "react";
 import clsx from "clsx";
+
+import { Icon } from "./Icon"
+import { Alert } from "./Alert"
+import { Stats } from "./Stats"
 import { useLayout, useSchema } from "@/stores";
 import { migrationCmdYiiGenerate } from "@services/generators/yii";
 
@@ -73,6 +77,10 @@ export const Modal = () => {
   const getExportJson = (): string => {
     return JSON.stringify(schema, null, 2);
   };
+
+  const alertGenerate = "Select a table to obtain the command to run the migration using the Yi command tool"
+  const alertLoad = "Paste a JSON diagram following the structure described in the README examples"
+  const alertExport = "Export your current diagram to save and share it. Download as a JSON file or copy to clipboard."
   return (
     <dialog
       id="commands_modal"
@@ -108,100 +116,66 @@ export const Modal = () => {
 
         {/* Command Mode */}
         {mode === "command" && (
-          <>
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text">Select Table</span>
-              </label>
-              <select
-                className="select select-bordered block"
-                value={selectedTable || ""}
-                onChange={setTable}
-              >
-                <option value="" disabled>
-                  Select a table
-                </option>
-                {schema.nodes.map((table: Node) => (
-                  <option key={table.id} value={table.id}>
-                    {table.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="space-y-4">
+            <Alert id="info" label={alertGenerate} size={24} />
+            <Stats name={schema.name} nodes={schema.nodes.length} edges={schema.edges.length} />
 
-            {selectedTable && (
-              <div className="bg-base-300 p-4 rounded-lg">
-                <pre className="whitespace-pre-wrap break-all text-sm">
-                  {getCommand()}
-                </pre>
-                <div className="flex justify-end mt-2">
-                  <button
-                    className="btn btn-sm btn-primary"
-                    onClick={() => navigator.clipboard.writeText(getCommand())}
+            <div className="form-control mb-4 flex justify-between">
+              <div className="pr-4" style={{width:"96px"}}>
+                <label className="label">
+                  <span className="label-text">Select Table</span>
+                </label>
+                <select
+                  className="select select-bordered block"
+                  value={selectedTable || ""}
+                  onChange={setTable}
                   >
-                    Copy
-                  </button>
-                </div>
+                  <option value="" disabled>
+                    Select a table
+                  </option>
+                  {schema.nodes.map((table: Node) => (
+                    <option key={table.id} value={table.id}>
+                      {table.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
-          </>
+              {selectedTable && (
+                <div className="bg-base-300 p-4 rounded-lg">
+                  <pre className="whitespace-pre-wrap break-all text-sm">
+                    {getCommand()}
+                  </pre>
+                  <div className="flex justify-end mt-2">
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => navigator.clipboard.writeText(getCommand())}
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {/* Load Diagram Mode */}
         {mode === "load" && (
           <div className="space-y-4">
-            <div className="alert alert-info">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                className="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            <Alert id="info" label={alertLoad} size={24} />
+
+            <div className="form-control flex justify-between">
+              <div className="flex-1 pr-4">
+                <label className="label">
+                  <span className="label-text">Diagram JSON</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered h-64 font-mono text-sm block w-full"
+                  placeholder='{\n  "name": "My Diagram",\n  "nodes": [...],\n  "edges": [...]\n}'
+                  value={jsonInput}
+                  onChange={(e) => setJsonInput(e.target.value)}
                 />
-              </svg>
-              <span>
-                Paste a JSON diagram following the structure described in the
-                README examples
-              </span>
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Diagram JSON</span>
-              </label>
-              <textarea
-                className="textarea textarea-bordered h-64 font-mono text-sm block"
-                placeholder='{\n  "name": "My Diagram",\n  "nodes": [...],\n  "edges": [...]\n}'
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
-              />
-            </div>
-
-            {error && (
-              <div className="alert alert-error">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="stroke-current shrink-0 h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>{error}</span>
               </div>
-            )}
-
-            <div className="flex justify-end">
               <button
                 className="btn btn-primary"
                 onClick={handleLoadDiagram}
@@ -210,105 +184,53 @@ export const Modal = () => {
                 Load Diagram
               </button>
             </div>
+            {error && ( <Alert id="error" label={error} size={24} /> )}
           </div>
         )}
 
-        {/* Export Diagram Mode */}
+        {/* Export Diagram Mode  id="success" */}
         {mode === "export" && (
           <div className="space-y-4">
-            <div className="alert alert-success">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            <Alert id="success" label={alertExport} size={24} />
+            <Stats name={schema.name} nodes={schema.nodes.length} edges={schema.edges.length} />
+
+            <div className="form-control flex justify-between">
+              <div className="flex-1 pr-4">
+                <label className="label">
+                  <span className="label-text">Diagram JSON Preview</span>
+                </label>
+                <textarea
+                  className="textarea textarea-bordered h-64 font-mono text-sm block w-full"
+                  value={getExportJson()}
+                  readOnly
                 />
-              </svg>
-              <span>
-                Export your current diagram to save and share it. Download as a
-                JSON file or copy to clipboard.
-              </span>
-            </div>
-
-            <div className="stats shadow w-full">
-              <div className="stat">
-                <div className="stat-title">Diagram Name</div>
-                <div className="stat-value text-2xl">{schema.name}</div>
               </div>
-              <div className="stat">
-                <div className="stat-title">Tables</div>
-                <div className="stat-value text-2xl">{schema.nodes.length}</div>
+              <div className="flex flex-col">
+                <button
+                  className="btn btn-outline mb-2"
+                  onClick={handleCopyDiagram}
+                >
+                  {copied ? (
+                    <>
+                      <Icon id="check" size={24} />
+                      Copied!
+                    </>
+                  ) : (
+                    "Copy to Clipboard"
+                  )}
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleDownloadDiagram}
+                >
+                  <Icon id="download" size={24} />
+                  Download JSON
+                </button>
               </div>
-              <div className="stat">
-                <div className="stat-title">Relationships</div>
-                <div className="stat-value text-2xl">{schema.edges.length}</div>
-              </div>
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Diagram JSON Preview</span>
-              </label>
-              <textarea
-                className="textarea textarea-bordered h-64 font-mono text-sm block"
-                value={getExportJson()}
-                readOnly
-              />
             </div>
 
             <div className="flex justify-end gap-2">
-              <button
-                className="btn btn-outline"
-                onClick={handleCopyDiagram}
-              >
-                {copied ? (
-                  <>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Copied!
-                  </>
-                ) : (
-                  "Copy to Clipboard"
-                )}
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleDownloadDiagram}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  />
-                </svg>
-                Download JSON
-              </button>
+
             </div>
           </div>
         )}

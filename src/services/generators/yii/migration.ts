@@ -11,5 +11,5 @@ export const migrationCmdYiiGenerate: MigrationCmdYiiGenerate = (
     ? attributes.filter((attr) => !attr.isPrimaryKey || attr.name !== "id")
     : attributes;
   const fieldsString = fieldsGenerate(filteredAttributes);
-  return `yii migrate/create create_${tableName}_table --fields="${fieldsString}"`;
+  return `php yii migrate/create create_${tableName}_table --fields="${fieldsString}"`;
 };
