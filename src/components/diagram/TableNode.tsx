@@ -45,8 +45,16 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
     }
   };
 
+  const attrs = [...data.attributes]
+  const size = attrs.sort((a,b) => {
+    if(a.name.length < b.name.length) return 1;
+    if(a.name.length > b.name.length) return -1;
+    return 0;
+  })[0].name.length
+
+  const clazz = `bg-base-100 rounded-lg shadow-lg p-4 border border-base-300 w-${size < 19 ? 64 : (size > 19? 80: 96)}`
   return (
-    <div className="bg-base-100 rounded-lg shadow-lg p-4 border border-base-300 w-64">
+    <div className={clazz}>
       {/* Table Header */}
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center space-x-2">
