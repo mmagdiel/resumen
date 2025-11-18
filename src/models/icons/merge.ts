@@ -22,4 +22,6 @@ export const mapperIcon: MapperIcon = {
   asterisk: "0 0 24 24",
   database: "0 0 24 24",
   fingerprint: "0 0 24 24",
+  "chevron-up": "0 0 24 24",
+  "chevron-down": "0 0 24 24",
 };

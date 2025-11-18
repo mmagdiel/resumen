@@ -36,6 +36,7 @@ export const useSchema = create<UseSchema>()(
               id: `${node.name}-id`,
               name: "id",
               type: "integer",
+              sort: 0,
               isNotNull: true,
               isUnique: true,
               isPrimaryKey: true,
@@ -49,6 +50,7 @@ export const useSchema = create<UseSchema>()(
               id: `${node.name}-created_at`,
               name: "created_at",
               type: "integer",
+              sort: attributes.length,
               isNotNull: true,
               isUnsigned: true,
               isForeignKey: false,
@@ -57,6 +59,7 @@ export const useSchema = create<UseSchema>()(
               id: `${node.name}-updated_at`,
               name: "updated_at",
               type: "integer",
+              sort: attributes.length,
               isNotNull: true,
               isUnsigned: true,
               isForeignKey: false,
@@ -69,6 +72,7 @@ export const useSchema = create<UseSchema>()(
               id: `${node.name}-created_by`,
               name: "created_by",
               type: "integer",
+              sort: attributes.length,
               isNotNull: true,
               isUnsigned: true,
               isForeignKey: false,
@@ -77,6 +81,7 @@ export const useSchema = create<UseSchema>()(
               id: `${node.name}-updated_by`,
               name: "updated_by",
               type: "integer",
+              sort: attributes.length,
               isNotNull: true,
               isUnsigned: true,
               isForeignKey: false,
@@ -125,6 +130,7 @@ export const useSchema = create<UseSchema>()(
                   id: `${table.name}-created_at`,
                   name: "created_at",
                   type: "integer",
+                  sort: updatedAttributes.length,
                   isNotNull: true,
                   isUnsigned: true,
                   isForeignKey: false,
@@ -135,6 +141,7 @@ export const useSchema = create<UseSchema>()(
                   id: `${table.name}-updated_at`,
                   name: "updated_at",
                   type: "integer",
+                  sort: updatedAttributes.length,
                   isNotNull: true,
                   isUnsigned: true,
                   isForeignKey: false,
@@ -168,6 +175,7 @@ export const useSchema = create<UseSchema>()(
                   id: `${table.name}-created_by`,
                   name: "created_by",
                   type: "integer",
+                  sort: updatedAttributes.length,
                   isNotNull: true,
                   isUnsigned: true,
                   isForeignKey: false,
@@ -178,6 +186,7 @@ export const useSchema = create<UseSchema>()(
                   id: `${table.name}-updated_by`,
                   name: "updated_by",
                   type: "integer",
+                  sort: updatedAttributes.length,
                   isNotNull: true,
                   isUnsigned: true,
                   isForeignKey: false,
@@ -232,9 +241,16 @@ export const useSchema = create<UseSchema>()(
 
       addAttribute: (tableId, attribute) =>
         set((state) => {
+          const table = state.schema.nodes.find((t) => t.id === tableId);
+          const maxSort = table?.attributes.reduce(
+            (max, attr) => Math.max(max, attr.sort ?? 0),
+            -1
+          ) ?? -1;
+
           const newAttribute = {
             ...attribute,
             id: `${tableId}-${attribute.name}`,
+            sort: attribute.sort ?? maxSort + 1,
           };
 
           // If this is a foreign key, create an edge
@@ -384,6 +400,56 @@ export const useSchema = create<UseSchema>()(
                   : node,
               ),
               edges: filteredEdges,
+            },
+          };
+        }),
+
+      reorderAttribute: (tableId, attributeId, direction) =>
+        set((state) => {
+          const table = state.schema.nodes.find((t) => t.id === tableId);
+          if (!table) return state;
+
+          // Sort attributes by current sort value
+          const sortedAttrs = [...table.attributes].sort(
+            (a, b) => (a.sort ?? 0) - (b.sort ?? 0)
+          );
+
+          // Find the index of the attribute to move
+          const currentIndex = sortedAttrs.findIndex(
+            (attr) => attr.id === attributeId
+          );
+          if (currentIndex === -1) return state;
+
+          // Calculate the swap index
+          const swapIndex =
+            direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+          // Check if the swap is valid
+          if (swapIndex < 0 || swapIndex >= sortedAttrs.length) return state;
+
+          // Swap the sort values
+          const currentSort = sortedAttrs[currentIndex].sort ?? currentIndex;
+          const swapSort = sortedAttrs[swapIndex].sort ?? swapIndex;
+
+          return {
+            schema: {
+              ...state.schema,
+              nodes: state.schema.nodes.map((node) =>
+                node.id === tableId
+                  ? {
+                      ...node,
+                      attributes: node.attributes.map((attr) => {
+                        if (attr.id === attributeId) {
+                          return { ...attr, sort: swapSort };
+                        }
+                        if (attr.id === sortedAttrs[swapIndex].id) {
+                          return { ...attr, sort: currentSort };
+                        }
+                        return attr;
+                      }) as Attribute[],
+                    }
+                  : node,
+              ),
             },
           };
         }),

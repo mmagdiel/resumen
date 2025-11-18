@@ -11,7 +11,7 @@ import { migrationCmdYiiGenerate } from "../../services";
 type TableNodeProps = NodeProps<Node>;
 
 const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
-  const { deleteNode } = useSchema();
+  const { deleteNode, reorderAttribute } = useSchema();
   const { openDrawer } = useLayout();
 
   const handleEditTable = () => {
@@ -30,6 +30,10 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
     openDrawer("edit", id, attributeId);
   };
 
+  const handleMoveAttribute = (attributeId: string, direction: "up" | "down") => {
+    reorderAttribute(id, attributeId, direction);
+  };
+
   const handleCopyCommand = () => {
     const { name, attributes, hideIdInCommand } = data;
     const command = migrationCmdYiiGenerate(name, attributes, hideIdInCommand ?? true);
@@ -44,6 +48,9 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
       }, 3000);
     }
   };
+
+  // Sort attributes by sort field
+  const sortedAttributes = [...data.attributes].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
 
   const attrs = [...data.attributes]
   const size = attrs.sort((a,b) => {
@@ -86,13 +93,13 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
 
       {/* Table Attributes */}
       <div className="divide-y divide-base-300">
-        {data.attributes.map((attr: Attribute) => (
+        {sortedAttributes.map((attr: Attribute, index: number) => (
           <div key={attr.id} className="py-1.5 flex justify-between group">
             <div className="space-x-2">
               <span className="font-medium text-sm">{attr.name}</span>
               <span className="text-xs text-base-content/70">{attr.type}</span>
             </div>
-            <div className="space-x-2">
+            <div className="space-x-1 flex items-center">
               {attr.isPrimaryKey && (
                 <div className="tooltip" data-tip="Primary Key">
                   <Icon id="key" className="inline text-primary" size={14} />
@@ -128,6 +135,24 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
               >
                 <Icon id="edit" size={12} />
               </button>
+              <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  className="btn btn-xs btn-ghost p-0 h-3 min-h-0"
+                  onClick={() => handleMoveAttribute(attr.id ?? "", "up")}
+                  disabled={index === 0}
+                  aria-label={`Move ${attr.name} up`}
+                >
+                  <Icon id="chevron-up" size={10} />
+                </button>
+                <button
+                  className="btn btn-xs btn-ghost p-0 h-3 min-h-0"
+                  onClick={() => handleMoveAttribute(attr.id ?? "", "down")}
+                  disabled={index === sortedAttributes.length - 1}
+                  aria-label={`Move ${attr.name} down`}
+                >
+                  <Icon id="chevron-down" size={10} />
+                </button>
+              </div>
             </div>
 
             {/* Handle for creating connections */}

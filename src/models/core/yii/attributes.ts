@@ -4,6 +4,7 @@ import type { LackableAttrType, ScalableAttrType } from "./types";
 interface AttrDTO {
   id?: string;
   name: string;
+  sort?: number;
   isNotNull?: boolean;
   isUnique?: boolean;
   isPrimaryKey?: boolean;

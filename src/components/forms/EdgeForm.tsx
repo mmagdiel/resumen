@@ -35,6 +35,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
       isUnique: attribute.isUnique,
       isPrimaryKey: attribute.isPrimaryKey,
       isForeignKey: attribute.isForeignKey,
+      isUnsigned: attribute.isUnsigned,
       referencesTable: attribute.referencesTable,
       referencesField: attribute.referencesField,
       defaultValue: attribute.defaultValue,
@@ -48,6 +49,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
       isUnique: false,
       isPrimaryKey: false,
       isForeignKey: false,
+      isUnsigned: false,
     }
   });
 
@@ -67,6 +69,15 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
 
   const shouldShowScale = (type: AttributeType) => {
     return ScalableAttrTypes.includes(type as any);
+  };
+
+  const shouldShowUnsigned = (type: AttributeType) => {
+    // Numeric types that support unsigned in Yii/MySQL
+    const numericTypes = [
+      'tinyInteger', 'smallint', 'integer', 'bigint', 'binary',
+      'decimal', 'money', 'float', 'double'
+    ];
+    return numericTypes.includes(type);
   };
   
   // Update requirements when primary key is toggled
@@ -243,7 +254,21 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
           <span className="label-text">Unique</span>
         </label>
       </div>
-      
+
+      {/* Unsigned checkbox for numeric types */}
+      {shouldShowUnsigned(selectedType) && (
+        <div className="form-control">
+          <label className="label cursor-pointer justify-start gap-2">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-primary"
+              {...register('isUnsigned')}
+            />
+            <span className="label-text">Unsigned</span>
+          </label>
+        </div>
+      )}
+
       <div className="form-control">
         <label className="label cursor-pointer justify-start gap-2">
           <input

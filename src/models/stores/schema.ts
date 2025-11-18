@@ -15,4 +15,9 @@ export interface UseSchema {
     data: Partial<Omit<Attribute, "id">>,
   ) => void;
   deleteAttribute: (tableId: string, attributeId: string) => void;
+  reorderAttribute: (
+    tableId: string,
+    attributeId: string,
+    direction: "up" | "down"
+  ) => void;
 }
