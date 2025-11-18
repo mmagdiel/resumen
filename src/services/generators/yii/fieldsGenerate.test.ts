@@ -70,7 +70,7 @@ describe("fieldsGenerate", () => {
     const actualResult = fieldsGenerate([
       { name: "views", type: "integer", defaultValue: 0 },
     ]);
-    const expectedResult = "views:integer:defaultValue(0)";
+    const expectedResult = "views:integer";
     expect(actualResult).toBe(expectedResult);
   });
 

@@ -98,12 +98,15 @@ interface AttrDTO {
 #### Example 1: Basic User Table with Timestamps
 ```json
 {
-  "name": "User Management",
+  "name": "With User",
   "nodes": [
     {
       "id": "node-1",
-      "name": "users",
-      "position": { "x": 100, "y": 100 },
+      "name": "user",
+      "position": {
+        "x": 93.44731801186194,
+        "y": 92.0282918557163
+      },
       "description": "User accounts table",
       "withTimestamps": true,
       "withBlameable": false,
@@ -113,7 +116,11 @@ interface AttrDTO {
           "name": "id",
           "type": "primaryKey",
           "isNotNull": true,
-          "length": 11
+          "length": 11,
+          "isUnique": true,
+          "isPrimaryKey": true,
+          "isForeignKey": false,
+          "defaultValue": ""
         },
         {
           "id": "attr-2",
@@ -133,23 +140,74 @@ interface AttrDTO {
         },
         {
           "id": "attr-4",
-          "name": "age",
-          "type": "tinyInteger",
+          "name": "password_hash",
+          "type": "string",
           "isUnsigned": true,
-          "length": 3
+          "length": 3,
+          "isNotNull": true,
+          "isUnique": false,
+          "isPrimaryKey": false,
+          "isForeignKey": false,
+          "defaultValue": ""
         },
         {
           "id": "attr-5",
-          "name": "is_active",
-          "type": "boolean",
-          "defaultValue": true
+          "name": "status",
+          "type": "tinyInteger",
+          "defaultValue": "10",
+          "isNotNull": true,
+          "isUnique": false,
+          "isPrimaryKey": false,
+          "isForeignKey": false
         },
         {
           "id": "attr-6",
-          "name": "preferences",
-          "type": "json"
+          "name": "password_reset_token",
+          "type": "string",
+          "isNotNull": false,
+          "isUnique": true,
+          "isPrimaryKey": false,
+          "isForeignKey": false,
+          "defaultValue": ""
+        },
+        {
+          "id": "users-created_at",
+          "name": "created_at",
+          "type": "integer",
+          "isNotNull": true,
+          "isUnsigned": true,
+          "isForeignKey": false
+        },
+        {
+          "id": "users-updated_at",
+          "name": "updated_at",
+          "type": "integer",
+          "isNotNull": true,
+          "isUnsigned": true,
+          "isForeignKey": false
+        },
+        {
+          "name": "auth_key",
+          "type": "string",
+          "isNotNull": true,
+          "isUnique": false,
+          "isPrimaryKey": false,
+          "isForeignKey": false,
+          "defaultValue": "",
+          "id": "node-1-auth_key"
+        },
+        {
+          "name": "verification_token",
+          "type": "string",
+          "isNotNull": false,
+          "isUnique": false,
+          "isPrimaryKey": false,
+          "isForeignKey": false,
+          "defaultValue": "",
+          "id": "node-1-verification_token"
         }
-      ]
+      ],
+      "hideIdInCommand": true
     }
   ],
   "edges": []

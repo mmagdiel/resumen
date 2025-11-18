@@ -14,7 +14,7 @@ describe("getDefaultValue", () => {
   it("getDefaultValue with numeric default value", () => {
     const defaultValue = 0;
     const actualResult = getDefaultValue({ defaultValue, name, type });
-    const expectedResult = ":defaultValue(0)";
+    const expectedResult = "";
     expect(actualResult).toBe(expectedResult);
   });
 

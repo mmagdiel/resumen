@@ -155,7 +155,7 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
       {/* Controls */}
       <div className="mt-2 flex justify-between">
         <button
-          className="btn btn-xs btn-accent text-white"
+          className="btn btn-xs btn-accent text-white mr-2"
           onClick={handleAddAttribute}
         >
           <Icon id="plus" size={14} />
@@ -163,7 +163,7 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
         </button>
 
         <button
-          className="btn btn-xs btn-outline btn-primary"
+          className="btn btn-xs btn-outline btn-primary ml-2" 
           onClick={handleCopyCommand}
         >
           <Icon id="copy" size={14} />

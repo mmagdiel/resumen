@@ -1,10 +1,12 @@
 import type { FC } from "react"
 import type { AttrFormValues } from '../../models';
+import type { AttributeType } from '../../models';
 
 import { useEffect } from 'react';
 import { useSchema } from '../../stores';
 import { useForm } from 'react-hook-form';
-import { AttributeTypes } from "../../models"
+import { AttributeTypes, CountableAttrTypes } from "../../models"
+import { ScalableAttrTypes, ScatterableAttrTypes } from "../../models"
 
 interface EdgeFormProps {
   tableId: string;
@@ -12,25 +14,18 @@ interface EdgeFormProps {
   onSubmit: () => void;
 }
 
-/*
-const FIELD_TYPES = [
-  'string', 'integer', 'text', 'boolean', 'date', 'datetime', 
-  'timestamp', 'decimal', 'float', 'binary', 'json'
-];
-*/
-
 const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
   const { schema, addAttribute, updateAttribute } = useSchema();
-  
+
   // Find the current table and attribute if editing
   const table = schema.nodes.find(t => t.id === tableId);
-  const attribute = attributeId 
-    ? table?.attributes.find(a => a.id === attributeId) 
+  const attribute = attributeId
+    ? table?.attributes.find(a => a.id === attributeId)
     : undefined;
-  
+
   // Get all other tables for foreign key selection
   const otherTables = schema.nodes.filter(t => t.id !== tableId);
-  
+
   // Set up form with default values
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<AttrFormValues>({
     defaultValues: attribute ? {
@@ -43,6 +38,9 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
       referencesTable: attribute.referencesTable,
       referencesField: attribute.referencesField,
       defaultValue: attribute.defaultValue,
+      length: 'length' in attribute ? attribute.length : undefined,
+      precision: 'precision' in attribute ? attribute.precision : undefined,
+      scale: 'scale' in attribute ? attribute.scale : undefined,
     } : {
       name: '',
       type: 'string',
@@ -52,11 +50,24 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
       isForeignKey: false,
     }
   });
-  
+
   // Watch values for conditional rendering
   const isForeignKey = watch('isForeignKey');
   const selectedType = watch('type');
   const isPrimaryKey = watch('isPrimaryKey');
+
+  // Helper functions to determine which parameters to show
+  const shouldShowLength = (type: AttributeType) => {
+    return CountableAttrTypes.includes(type as any);
+  };
+
+  const shouldShowPrecision = (type: AttributeType) => {
+    return ScatterableAttrTypes.includes(type as any) || ScalableAttrTypes.includes(type as any);
+  };
+
+  const shouldShowScale = (type: AttributeType) => {
+    return ScalableAttrTypes.includes(type as any);
+  };
   
   // Update requirements when primary key is toggled
   useEffect(() => {
@@ -104,7 +115,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
         <label className="label">
           <span className="label-text">Type</span>
         </label>
-        <select 
+        <select
           className="select select-bordered w-full"
           {...register('type', { required: true })}
         >
@@ -113,7 +124,91 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
           ))}
         </select>
       </div>
-      
+
+      {/* Length parameter for countable types (char, string, binary, integers, keys) */}
+      {shouldShowLength(selectedType) && (
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Length</span>
+          </label>
+          <input
+            type="number"
+            className={`input input-bordered ${errors.length ? 'input-error' : ''}`}
+            {...register('length', {
+              value:0,
+              valueAsNumber: true,
+              validate: (value) => {
+                if (value === undefined || value === null) return true;
+                if (!Number.isInteger(value)) return 'Length must be an integer';
+                return true;
+              }
+            })}
+            placeholder="e.g., 255"
+          />
+          {errors.length && (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.length.message}</span>
+            </label>
+          )}
+        </div>
+      )}
+
+      {/* Precision parameter for scatterable types (datetime, time, timestamp, float, double) and scalable types (decimal, money) */}
+      {shouldShowPrecision(selectedType) && (
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Precision</span>
+          </label>
+          <input
+            type="number"
+            className={`input input-bordered ${errors.precision ? 'input-error' : ''}`}
+            {...register('precision', {
+              value: 0,
+              valueAsNumber: true,
+              validate: (value) => {
+                if (value === undefined || value === null) return true;
+                if (!Number.isInteger(value)) return 'Precision must be an integer';
+                return true;
+              }
+            })}
+            placeholder="e.g., 10"
+          />
+          {errors.precision && (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.precision.message}</span>
+            </label>
+          )}
+        </div>
+      )}
+
+      {/* Scale parameter for scalable types (decimal, money) */}
+      {shouldShowScale(selectedType) && (
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Scale</span>
+          </label>
+          <input
+            type="number"
+            className={`input input-bordered ${errors.scale ? 'input-error' : ''}`}
+            {...register('scale', {
+              value: 0,
+              valueAsNumber: true,
+              validate: (value) => {
+                if (value === undefined || value === null) return true;
+                if (!Number.isInteger(value)) return 'Scale must be an integer';
+                return true;
+              }
+            })}
+            placeholder="e.g., 2"
+          />
+          {errors.scale && (
+            <label className="label">
+              <span className="label-text-alt text-error">{errors.scale.message}</span>
+            </label>
+          )}
+        </div>
+      )}
+
       <div className="form-control">
         <label className="label cursor-pointer justify-start gap-2">
           <input

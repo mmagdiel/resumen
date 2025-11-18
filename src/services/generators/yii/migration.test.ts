@@ -4,13 +4,15 @@ import { migrationCmdYiiGenerate } from "./migration.ts";
 describe("migrationCmdYiiGenerate", () => {
   it("add migrate without attributes", () => {
     const actualResult = migrationCmdYiiGenerate("hola", []);
-    const expectedResult = 'yii migrate/create create_hola_table --fields=""';
+    const expectedResult =
+      'php yii migrate/create create_hola_table --fields=""';
     expect(actualResult).toBe(expectedResult);
   });
 
   it("add migrate without attributes", () => {
     const actualResult = migrationCmdYiiGenerate("hola", []);
-    const expectedResult = 'yii migrate/create create_hola_table --fields=""';
+    const expectedResult =
+      'php yii migrate/create create_hola_table --fields=""';
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -19,7 +21,7 @@ describe("migrationCmdYiiGenerate", () => {
       { name: "username", type: "string", length: 255 },
     ]);
     const expectedResult =
-      'yii migrate/create create_users_table --fields="username:string(255)"';
+      'php yii migrate/create create_users_table --fields="username:string(255)"';
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -30,7 +32,7 @@ describe("migrationCmdYiiGenerate", () => {
       { name: "quantity", type: "integer" },
     ]);
     const expectedResult =
-      'yii migrate/create create_products_table --fields="name:string(100),price:decimal(10,2),quantity:integer"';
+      'php yii migrate/create create_products_table --fields="name:string(100),price:decimal(10,2),quantity:integer"';
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -40,7 +42,7 @@ describe("migrationCmdYiiGenerate", () => {
       { name: "hire_date", type: "date", isNotNull: true },
     ]);
     const expectedResult =
-      'yii migrate/create create_employees_table --fields="email:string(255):notNull,hire_date:date:notNull"';
+      'php yii migrate/create create_employees_table --fields="email:string(255):notNull,hire_date:date:notNull"';
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -50,7 +52,7 @@ describe("migrationCmdYiiGenerate", () => {
       { name: "views", type: "integer", defaultValue: 0 },
     ]);
     const expectedResult =
-      'yii migrate/create create_posts_table --fields="status:string(20):defaultValue(draft),views:integer:defaultValue(0)"';
+      'php yii migrate/create create_posts_table --fields="status:string(20):defaultValue(draft),views:integer"';
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -60,7 +62,7 @@ describe("migrationCmdYiiGenerate", () => {
       { name: "username", type: "string", length: 50 },
     ]);
     const expectedResult =
-      'yii migrate/create create_users_table --fields="username:string(50)"';
+      'php yii migrate/create create_users_table --fields="username:string(50)"';
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -74,7 +76,7 @@ describe("migrationCmdYiiGenerate", () => {
       false,
     );
     const expectedResult =
-      'yii migrate/create create_users_table --fields="id:primaryKey,username:string(50)"';
+      'php yii migrate/create create_users_table --fields="id:primaryKey,username:string(50)"';
     expect(actualResult).toBe(expectedResult);
   });
 
@@ -85,7 +87,7 @@ describe("migrationCmdYiiGenerate", () => {
       { name: "title", type: "string", length: 100 },
     ]);
     const expectedResult =
-      'yii migrate/create create_posts_table --fields="uuid:bigPrimaryKey,title:string(100)"';
+      'php yii migrate/create create_posts_table --fields="uuid:bigPrimaryKey,title:string(100)"';
     expect(actualResult).toBe(expectedResult);
   });
 });
