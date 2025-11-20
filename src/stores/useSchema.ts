@@ -139,7 +139,7 @@ export const useSchema = create<UseSchema>()(
             const table1 = state.schema.nodes.find((t) => t.id === node.junctionTable1);
             const table2 = state.schema.nodes.find((t) => t.id === node.junctionTable2);
 
-            // Create edge from first table to junction (reversed direction)
+            // Create edge to first table
             if (table1) {
               const table1PrimaryKey = table1.attributes.find((a) => a.isPrimaryKey);
               const junctionTable1FK = attributes.find(
@@ -147,17 +147,17 @@ export const useSchema = create<UseSchema>()(
               );
               if (table1PrimaryKey && junctionTable1FK) {
                 newEdges.push({
-                  id: `edge-${table1.id}-${id}`,
-                  source: table1.id,
-                  target: id,
-                  sourceHandle: table1PrimaryKey.id,
-                  targetHandle: junctionTable1FK.id,
+                  id: `edge-${id}-${table1.id}`,
+                  source: id,
+                  target: table1.id,
+                  sourceHandle: junctionTable1FK.id,
+                  targetHandle: table1PrimaryKey.id,
                   label: table1.name,
                 });
               }
             }
 
-            // Create edge from junction to second table
+            // Create edge to second table
             if (table2) {
               const table2PrimaryKey = table2.attributes.find((a) => a.isPrimaryKey);
               const junctionTable2FK = attributes.find(
