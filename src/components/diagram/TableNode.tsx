@@ -11,7 +11,7 @@ import { migrationCmdYiiGenerate } from "../../services";
 type TableNodeProps = NodeProps<Node>;
 
 const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
-  const { deleteNode, reorderAttribute } = useSchema();
+  const { schema, deleteNode, deleteAttribute, reorderAttribute } = useSchema();
   const { openDrawer } = useLayout();
 
   const handleEditTable = () => {
@@ -30,13 +30,33 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
     openDrawer("edit", id, attributeId);
   };
 
+  const handleDeleteAttribute = (attributeId: string) => {
+    deleteAttribute(id, attributeId);
+  };
+
   const handleMoveAttribute = (attributeId: string, direction: "up" | "down") => {
     reorderAttribute(id, attributeId, direction);
   };
 
   const handleCopyCommand = () => {
-    const { name, attributes, hideIdInCommand } = data;
-    const command = migrationCmdYiiGenerate(name, attributes, hideIdInCommand ?? true);
+    const { name, attributes, hideIdInCommand, isJunction, junctionTable1, junctionTable2 } = data;
+
+    // Get table names for junction tables
+    let table1Name = "";
+    let table2Name = "";
+    if (isJunction && junctionTable1 && junctionTable2) {
+      table1Name = schema.nodes.find((n) => n.id === junctionTable1)?.name || "";
+      table2Name = schema.nodes.find((n) => n.id === junctionTable2)?.name || "";
+    }
+
+    const command = migrationCmdYiiGenerate(
+      name,
+      attributes,
+      hideIdInCommand ?? true,
+      isJunction,
+      table1Name,
+      table2Name
+    );
     navigator.clipboard.writeText(command);
 
     // Show toast or some indicator
@@ -134,6 +154,13 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
                 aria-label={`Edit ${attr.name} attribute`}
               >
                 <Icon id="edit" size={12} />
+              </button>
+              <button
+                className="btn btn-xs btn-ghost text-error"
+                onClick={() => handleDeleteAttribute(attr?.id ?? "")}
+                aria-label={`Delete ${attr.name} attribute`}
+              >
+                <Icon id="trash" size={12} />
               </button>
               <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
                 <button

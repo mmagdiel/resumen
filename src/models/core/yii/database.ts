@@ -15,6 +15,9 @@ export interface Node {
   withTimestamps?: boolean;
   withBlameable?: boolean;
   hideIdInCommand?: boolean;
+  isJunction?: boolean;
+  junctionTable1?: string;
+  junctionTable2?: string;
   attributes: Attributes;
 }
 

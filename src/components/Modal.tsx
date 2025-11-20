@@ -25,7 +25,22 @@ export const Modal = () => {
     const table = schema.nodes.find((t: Node) => t.id === selectedTable);
     if (!table) return "";
 
-    return migrationCmdYiiGenerate(table.name, table.attributes, table.hideIdInCommand ?? true);
+    // Get table names for junction tables
+    let table1Name = "";
+    let table2Name = "";
+    if (table.isJunction && table.junctionTable1 && table.junctionTable2) {
+      table1Name = schema.nodes.find((n) => n.id === table.junctionTable1)?.name || "";
+      table2Name = schema.nodes.find((n) => n.id === table.junctionTable2)?.name || "";
+    }
+
+    return migrationCmdYiiGenerate(
+      table.name,
+      table.attributes,
+      table.hideIdInCommand ?? true,
+      table.isJunction,
+      table1Name,
+      table2Name
+    );
   };
 
   const handleLoadDiagram = () => {

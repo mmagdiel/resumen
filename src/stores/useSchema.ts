@@ -31,8 +31,11 @@ export const useSchema = create<UseSchema>()(
 
       addNode: (node) =>
         set((state) => {
-          const attributes = [
-            {
+          const attributes = [] as Attributes;
+
+          // Only add ID primary key for non-junction tables
+          if (!node.isJunction) {
+            attributes.push({
               id: `${node.name}-id`,
               name: "id",
               type: "integer",
@@ -41,8 +44,42 @@ export const useSchema = create<UseSchema>()(
               isUnique: true,
               isPrimaryKey: true,
               isForeignKey: false,
-            },
-          ] as Attributes;
+            });
+          }
+
+          // For junction tables, add foreign key attributes
+          if (node.isJunction && node.junctionTable1 && node.junctionTable2) {
+            const table1 = state.schema.nodes.find((t) => t.id === node.junctionTable1);
+            const table2 = state.schema.nodes.find((t) => t.id === node.junctionTable2);
+
+            if (table1) {
+              attributes.push({
+                id: `${node.name}-${table1.name}_id`,
+                name: `${table1.name}_id`,
+                type: "integer",
+                sort: attributes.length,
+                isNotNull: true,
+                isUnsigned: true,
+                isForeignKey: true,
+                referencesTable: table1.id,
+                referencesField: "id",
+              });
+            }
+
+            if (table2) {
+              attributes.push({
+                id: `${node.name}-${table2.name}_id`,
+                name: `${table2.name}_id`,
+                type: "integer",
+                sort: attributes.length,
+                isNotNull: true,
+                isUnsigned: true,
+                isForeignKey: true,
+                referencesTable: table2.id,
+                referencesField: "id",
+              });
+            }
+          }
 
           // Add timestamp fields if enabled
           if (node.withTimestamps) {
@@ -96,10 +133,54 @@ export const useSchema = create<UseSchema>()(
             position: { x: Math.random() * 400, y: Math.random() * 400 },
           };
 
+          // Create edges for junction tables
+          const newEdges = [...state.schema.edges];
+          if (node.isJunction && node.junctionTable1 && node.junctionTable2) {
+            const table1 = state.schema.nodes.find((t) => t.id === node.junctionTable1);
+            const table2 = state.schema.nodes.find((t) => t.id === node.junctionTable2);
+
+            // Create edge from first table to junction (reversed direction)
+            if (table1) {
+              const table1PrimaryKey = table1.attributes.find((a) => a.isPrimaryKey);
+              const junctionTable1FK = attributes.find(
+                (a) => a.name === `${table1.name}_id`
+              );
+              if (table1PrimaryKey && junctionTable1FK) {
+                newEdges.push({
+                  id: `edge-${table1.id}-${id}`,
+                  source: table1.id,
+                  target: id,
+                  sourceHandle: table1PrimaryKey.id,
+                  targetHandle: junctionTable1FK.id,
+                  label: table1.name,
+                });
+              }
+            }
+
+            // Create edge from junction to second table
+            if (table2) {
+              const table2PrimaryKey = table2.attributes.find((a) => a.isPrimaryKey);
+              const junctionTable2FK = attributes.find(
+                (a) => a.name === `${table2.name}_id`
+              );
+              if (table2PrimaryKey && junctionTable2FK) {
+                newEdges.push({
+                  id: `edge-${id}-${table2.id}`,
+                  source: id,
+                  target: table2.id,
+                  sourceHandle: junctionTable2FK.id,
+                  targetHandle: table2PrimaryKey.id,
+                  label: table2.name,
+                });
+              }
+            }
+          }
+
           return {
             schema: {
               ...state.schema,
               nodes: [...state.schema.nodes, newNode],
+              edges: newEdges,
             },
           };
         }),

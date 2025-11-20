@@ -5,4 +5,7 @@ export type MigrationCmdYiiGenerate = (
   name: string,
   attributes: Attribute[],
   hideId?: boolean,
+  isJunction?: boolean,
+  junctionTable1Name?: string,
+  junctionTable2Name?: string,
 ) => string;

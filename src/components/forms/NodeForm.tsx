@@ -22,6 +22,8 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<NodeFormValues>({
     defaultValues: table
@@ -31,6 +33,9 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
           withTimestamps: table.withTimestamps || false,
           withBlameable: table.withBlameable || false,
           hideIdInCommand: table.hideIdInCommand ?? true,
+          isJunction: table.isJunction || false,
+          junctionTable1: table.junctionTable1 || "",
+          junctionTable2: table.junctionTable2 || "",
         }
       : {
           name: "",
@@ -38,8 +43,31 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
           withTimestamps: false,
           withBlameable: false,
           hideIdInCommand: true,
+          isJunction: false,
+          junctionTable1: "",
+          junctionTable2: "",
         },
   });
+
+  // Watch junction-related fields
+  const isJunction = watch("isJunction");
+  const junctionTable1 = watch("junctionTable1");
+  const junctionTable2 = watch("junctionTable2");
+
+  // Auto-generate name for junction tables
+  if (isJunction && junctionTable1 && junctionTable2) {
+    const table1Name = schema.nodes.find((n) => n.id === junctionTable1)?.name || "";
+    const table2Name = schema.nodes.find((n) => n.id === junctionTable2)?.name || "";
+    if (table1Name && table2Name) {
+      const generatedName = `${table1Name}_and_${table2Name}`;
+      if (watch("name") !== generatedName) {
+        setValue("name", generatedName);
+      }
+    }
+  }
+
+  // Get available tables for junction table selection (exclude current table if editing)
+  const availableTables = schema.nodes.filter((node) => node.id !== tableId);
 
   // Submit handler
   const handleFormSubmit = (data: NodeFormValues) => {
@@ -58,30 +86,108 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
       </h3>
 
       <div className="form-control">
-        <label className="label">
-          <span className="label-text">Table Name</span>
+        <label className="label cursor-pointer justify-start space-x-2">
+          <input
+            type="checkbox"
+            className="checkbox"
+            {...register("isJunction")}
+          />
+          <div className="tooltip" data-tip="Junction table for many-to-many relationships">
+            <span className="label-text">Junction Table</span>
+          </div>
         </label>
-        <input
-          type="text"
-          className={`input input-bordered ${errors.name ? "input-error" : ""}`}
-          {...register("name", {
-            required: "Table name is required",
-            pattern: {
-              value: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-              message:
-                "Table name must start with a letter and contain only letters, numbers, and underscores",
-            },
-          })}
-          disabled={!!tableId} // Don't allow changing table name when editing
-        />
-        {errors.name && (
-          <label className="label">
-            <span className="label-text-alt text-error">
-              {errors.name.message}
-            </span>
-          </label>
-        )}
       </div>
+
+      {!isJunction && (
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Table Name</span>
+          </label>
+          <input
+            type="text"
+            className={`input input-bordered ${errors.name ? "input-error" : ""}`}
+            {...register("name", {
+              required: "Table name is required",
+              pattern: {
+                value: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+                message:
+                  "Table name must start with a letter and contain only letters, numbers, and underscores",
+              },
+            })}
+          />
+          {errors.name && (
+            <label className="label">
+              <span className="label-text-alt text-error">
+                {errors.name.message}
+              </span>
+            </label>
+          )}
+        </div>
+      )}
+
+      {isJunction && (
+        <>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">First Table</span>
+            </label>
+            <select
+              className={`select select-bordered ${errors.junctionTable1 ? "select-error" : ""}`}
+              {...register("junctionTable1", {
+                required: "First table is required for junction table",
+              })}
+            >
+              <option value="">Select a table</option>
+              {availableTables.map((node) => (
+                <option key={node.id} value={node.id}>
+                  {node.name}
+                </option>
+              ))}
+            </select>
+            {errors.junctionTable1 && (
+              <label className="label">
+                <span className="label-text-alt text-error">
+                  {errors.junctionTable1.message}
+                </span>
+              </label>
+            )}
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Second Table</span>
+            </label>
+            <select
+              className={`select select-bordered ${errors.junctionTable2 ? "select-error" : ""}`}
+              {...register("junctionTable2", {
+                required: "Second table is required for junction table",
+              })}
+            >
+              <option value="">Select a table</option>
+              {availableTables.map((node) => (
+                <option key={node.id} value={node.id}>
+                  {node.name}
+                </option>
+              ))}
+            </select>
+            {errors.junctionTable2 && (
+              <label className="label">
+                <span className="label-text-alt text-error">
+                  {errors.junctionTable2.message}
+                </span>
+              </label>
+            )}
+          </div>
+
+          {junctionTable1 && junctionTable2 && (
+            <div className="alert alert-info">
+              <span className="text-sm">
+                Table name: <strong>{watch("name")}</strong>
+              </span>
+            </div>
+          )}
+        </>
+      )}
 
       <div className="form-control">
         <label className="label">
