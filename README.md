@@ -32,7 +32,7 @@ interface Node {
   description: string;        // Table description
   withTimestamps?: boolean;   // Auto-add created_at/updated_at timestamps
   withBlameable?: boolean;    // Auto-add created_by/updated_by fields
-  hideIdInCommand?: boolean;  // Hide ID field in migration command
+  hideIdInCommand?: boolean;  // Hide primary key fields in migration command (set to false to include primaryKey/bigPrimaryKey)
   attributes: Attribute[];    // Column definitions
 }
 
@@ -82,7 +82,7 @@ interface AttrDTO {
   - No additional properties required
 
 - **CountAttrs** (Countable): Types that may require length specification
-  - Types: `char`, `string`, `binary`, `tinyInteger`, `smallint`, `integer`, `bigint`, `primaryKey`, `bigPrimaryKey`
+  - Types: `char`, `string`, `binary`, `tinyInteger`, `smallint`, `integer`, `bigInteger`, `primaryKey`, `bigPrimaryKey`
   - Additional property: `length?: number`
 
 - **ScatterableAttrs** (Scatterable): Types that may require precision
@@ -259,7 +259,7 @@ interface AttrDTO {
         {
           "id": "attr-4",
           "name": "user_id",
-          "type": "bigint",
+          "type": "bigInteger",
           "isNotNull": true,
           "isUnsigned": true,
           "isForeignKey": true,
@@ -424,7 +424,7 @@ interface AttrDTO {
         {
           "id": "attr-13",
           "name": "order_id",
-          "type": "bigint",
+          "type": "bigInteger",
           "isNotNull": true,
           "isUnsigned": true,
           "isForeignKey": true,
@@ -434,7 +434,7 @@ interface AttrDTO {
         {
           "id": "attr-14",
           "name": "product_id",
-          "type": "bigint",
+          "type": "bigInteger",
           "isNotNull": true,
           "isUnsigned": true,
           "isForeignKey": true,
@@ -678,9 +678,9 @@ const clearState = () => {
 | `tinyInteger` | Countable | `length` | Very small numbers (0-255) |
 | `smallint` | Countable | `length` | Small numbers (-32K to 32K) |
 | `integer` | Countable | `length` | Standard IDs, counts |
-| `bigint` | Countable | `length` | Large numbers, big IDs |
+| `bigInteger` | Countable | `length` | Large numbers, big IDs |
 | `primaryKey` | Countable | `length` | Auto-increment primary key (integer) |
-| `bigPrimaryKey` | Countable | `length` | Auto-increment primary key (bigint) |
+| `bigPrimaryKey` | Countable | `length` | Auto-increment primary key (bigInteger) |
 | `datetime` | Scatterable | `precision` | Created/updated timestamps |
 | `time` | Scatterable | `precision` | Time of day |
 | `timestamp` | Scatterable | `precision` | Unix timestamps |

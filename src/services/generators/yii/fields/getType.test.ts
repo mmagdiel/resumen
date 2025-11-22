@@ -120,11 +120,11 @@ describe("getType", () => {
     expect(actualResult).toBe(expectedResult);
   });
 
-  it("should handle bigint type with length", () => {
-    const type = "bigint";
+  it("should handle bigInteger type with length", () => {
+    const type = "bigInteger";
     const length = 20;
     const actualResult = getType({ name, type, length });
-    const expectedResult = "name:bigint(20)";
+    const expectedResult = "name:bigInteger(20)";
     expect(actualResult).toBe(expectedResult);
   });
 

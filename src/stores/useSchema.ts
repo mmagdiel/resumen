@@ -49,34 +49,72 @@ export const useSchema = create<UseSchema>()(
 
           // For junction tables, add foreign key attributes
           if (node.isJunction && node.junctionTable1 && node.junctionTable2) {
-            const table1 = state.schema.nodes.find((t) => t.id === node.junctionTable1);
-            const table2 = state.schema.nodes.find((t) => t.id === node.junctionTable2);
+            const table1 = state.schema.nodes.find(
+              (t) => t.id === node.junctionTable1,
+            );
+            const table2 = state.schema.nodes.find(
+              (t) => t.id === node.junctionTable2,
+            );
 
             if (table1) {
+              // Find the primary key of table1 (or use first attribute as fallback)
+              const table1PrimaryKey =
+                table1.attributes.find((a) => a.isPrimaryKey) ||
+                table1.attributes[0];
+
+              // Auto-detect type based on referenced field
+              let fkType: any = "integer";
+              if (table1PrimaryKey) {
+                if (table1PrimaryKey.type === "primaryKey") {
+                  fkType = "integer";
+                } else if (table1PrimaryKey.type === "bigPrimaryKey") {
+                  fkType = "bigInteger";
+                } else {
+                  fkType = table1PrimaryKey.type;
+                }
+              }
+
               attributes.push({
                 id: `${node.name}-${table1.name}_id`,
                 name: `${table1.name}_id`,
-                type: "integer",
+                type: fkType,
                 sort: attributes.length,
                 isNotNull: true,
                 isUnsigned: true,
                 isForeignKey: true,
                 referencesTable: table1.id,
-                referencesField: "id",
+                referencesField: table1PrimaryKey?.id || "id",
               });
             }
 
             if (table2) {
+              // Find the primary key of table2 (or use first attribute as fallback)
+              const table2PrimaryKey =
+                table2.attributes.find((a) => a.isPrimaryKey) ||
+                table2.attributes[0];
+
+              // Auto-detect type based on referenced field
+              let fkType: any = "integer";
+              if (table2PrimaryKey) {
+                if (table2PrimaryKey.type === "primaryKey") {
+                  fkType = "integer";
+                } else if (table2PrimaryKey.type === "bigPrimaryKey") {
+                  fkType = "bigInteger";
+                } else {
+                  fkType = table2PrimaryKey.type;
+                }
+              }
+
               attributes.push({
                 id: `${node.name}-${table2.name}_id`,
                 name: `${table2.name}_id`,
-                type: "integer",
+                type: fkType,
                 sort: attributes.length,
                 isNotNull: true,
                 isUnsigned: true,
                 isForeignKey: true,
                 referencesTable: table2.id,
-                referencesField: "id",
+                referencesField: table2PrimaryKey?.id || "id",
               });
             }
           }
@@ -136,14 +174,20 @@ export const useSchema = create<UseSchema>()(
           // Create edges for junction tables
           const newEdges = [...state.schema.edges];
           if (node.isJunction && node.junctionTable1 && node.junctionTable2) {
-            const table1 = state.schema.nodes.find((t) => t.id === node.junctionTable1);
-            const table2 = state.schema.nodes.find((t) => t.id === node.junctionTable2);
+            const table1 = state.schema.nodes.find(
+              (t) => t.id === node.junctionTable1,
+            );
+            const table2 = state.schema.nodes.find(
+              (t) => t.id === node.junctionTable2,
+            );
 
             // Create edge to first table
             if (table1) {
-              const table1PrimaryKey = table1.attributes.find((a) => a.isPrimaryKey);
+              const table1PrimaryKey = table1.attributes.find(
+                (a) => a.isPrimaryKey,
+              );
               const junctionTable1FK = attributes.find(
-                (a) => a.name === `${table1.name}_id`
+                (a) => a.name === `${table1.name}_id`,
               );
               if (table1PrimaryKey && junctionTable1FK) {
                 newEdges.push({
@@ -159,9 +203,11 @@ export const useSchema = create<UseSchema>()(
 
             // Create edge to second table
             if (table2) {
-              const table2PrimaryKey = table2.attributes.find((a) => a.isPrimaryKey);
+              const table2PrimaryKey = table2.attributes.find(
+                (a) => a.isPrimaryKey,
+              );
               const junctionTable2FK = attributes.find(
-                (a) => a.name === `${table2.name}_id`
+                (a) => a.name === `${table2.name}_id`,
               );
               if (table2PrimaryKey && junctionTable2FK) {
                 newEdges.push({
@@ -323,10 +369,11 @@ export const useSchema = create<UseSchema>()(
       addAttribute: (tableId, attribute) =>
         set((state) => {
           const table = state.schema.nodes.find((t) => t.id === tableId);
-          const maxSort = table?.attributes.reduce(
-            (max, attr) => Math.max(max, attr.sort ?? 0),
-            -1
-          ) ?? -1;
+          const maxSort =
+            table?.attributes.reduce(
+              (max, attr) => Math.max(max, attr.sort ?? 0),
+              -1,
+            ) ?? -1;
 
           const newAttribute = {
             ...attribute,
@@ -492,12 +539,12 @@ export const useSchema = create<UseSchema>()(
 
           // Sort attributes by current sort value
           const sortedAttrs = [...table.attributes].sort(
-            (a, b) => (a.sort ?? 0) - (b.sort ?? 0)
+            (a, b) => (a.sort ?? 0) - (b.sort ?? 0),
           );
 
           // Find the index of the attribute to move
           const currentIndex = sortedAttrs.findIndex(
-            (attr) => attr.id === attributeId
+            (attr) => attr.id === attributeId,
           );
           if (currentIndex === -1) return state;
 

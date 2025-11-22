@@ -207,8 +207,8 @@ const NodeForm: FC<NodeProps> = ({ tableId, onSubmit }) => {
             className="checkbox"
             {...register("hideIdInCommand")}
           />
-          <div className="tooltip" data-tip="Hide ID field from migration command">
-            <span className="label-text">Hide ID in Command</span>
+          <div className="tooltip" data-tip="Hide primary key fields from migration command (uncheck to include primaryKey/bigPrimaryKey)">
+            <span className="label-text">Hide Primary Keys in Command</span>
           </div>
         </label>
       </div>

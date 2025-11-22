@@ -81,7 +81,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
   const shouldShowUnsigned = (type: AttributeType) => {
     // Numeric types that support unsigned in Yii/MySQL
     const numericTypes = [
-      'tinyInteger', 'smallint', 'integer', 'bigint', 'binary',
+      'tinyInteger', 'smallint', 'integer', 'bigInteger', 'binary',
       'decimal', 'money', 'float', 'double'
     ];
     return numericTypes.includes(type);
@@ -107,7 +107,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
         if (refField.type === 'primaryKey') {
           data.type = 'integer';
         } else if (refField.type === 'bigPrimaryKey') {
-          data.type = 'bigint';
+          data.type = 'bigInteger';
         } else {
           data.type = refField.type;
         }

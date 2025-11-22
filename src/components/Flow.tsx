@@ -85,7 +85,6 @@ const Flow: FC = () => {
 
   // Handle adding a new table
   const handleAddTable = useCallback(() => {
-    console.log("hola!!!");
     openDrawer("create");
   }, [openDrawer]);
 

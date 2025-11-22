@@ -16,7 +16,13 @@ export const migrationCmdYiiGenerate: MigrationCmdYiiGenerate = (
     const table1 = junctionTable1Name.toLowerCase();
     const table2 = junctionTable2Name.toLowerCase();
     const filteredAttributes = attributes
-      .filter((attr) => !attr.isPrimaryKey && !attr.isForeignKey)
+      .filter((attr) => {
+        // Always exclude foreign keys from junction table commands
+        if (attr.isForeignKey) return false;
+        // Exclude primary keys only if hideId is true
+        if (hideId && attr.isPrimaryKey) return false;
+        return true;
+      })
       .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
     const fieldsString = filteredAttributes.length > 0
       ? fieldsGenerate(filteredAttributes)
@@ -27,7 +33,7 @@ export const migrationCmdYiiGenerate: MigrationCmdYiiGenerate = (
 
   // Regular table command
   const filteredAttributes = (hideId
-    ? attributes.filter((attr) => !attr.isPrimaryKey || attr.name !== "id")
+    ? attributes.filter((attr) => !attr.isPrimaryKey)
     : attributes)
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
   const fieldsString = fieldsGenerate(filteredAttributes);
