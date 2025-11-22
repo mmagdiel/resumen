@@ -57,6 +57,13 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
   const isForeignKey = watch('isForeignKey');
   const selectedType = watch('type');
   const isPrimaryKey = watch('isPrimaryKey');
+  const referencesTable = watch('referencesTable');
+
+  // Get the referenced table's attributes for field selection
+  const referencedTable = referencesTable
+    ? schema.nodes.find(t => t.id === referencesTable)
+    : undefined;
+  const referencedTableAttributes = referencedTable?.attributes || [];
 
   // Helper functions to determine which parameters to show
   const shouldShowLength = (type: AttributeType) => {
@@ -90,6 +97,23 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
   
   // Submit handler
   const handleFormSubmit = (data: AttrFormValues) => {
+    // Auto-detect type for foreign keys based on referenced field
+    if (data.isForeignKey && data.referencesTable && data.referencesField) {
+      const refTable = schema.nodes.find(t => t.id === data.referencesTable);
+      const refField = refTable?.attributes.find(a => a.id === data.referencesField);
+
+      if (refField) {
+        // Map primary key types to their corresponding foreign key types
+        if (refField.type === 'primaryKey') {
+          data.type = 'integer';
+        } else if (refField.type === 'bigPrimaryKey') {
+          data.type = 'bigint';
+        } else {
+          data.type = refField.type;
+        }
+      }
+    }
+
     if (attributeId) {
       updateAttribute(tableId, attributeId, data);
     } else {
@@ -129,6 +153,7 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
         <select
           className="select select-bordered w-full"
           {...register('type', { required: true })}
+          disabled={isForeignKey}
         >
           {AttributeTypes.map(type => (
             <option key={type} value={type}>{type}</option>
@@ -282,27 +307,53 @@ const EdgeForm: FC<EdgeFormProps> = ({ tableId, attributeId, onSubmit }) => {
       </div>
       
       {isForeignKey && (
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">References Table</span>
-          </label>
-          <select 
-            className={`select select-bordered w-full ${errors.referencesTable ? 'select-error' : ''}`}
-            {...register('referencesTable', { 
-              required: isForeignKey ? 'Reference table is required' : false 
-            })}
-          >
-            <option value="">Select a table</option>
-            {otherTables.map(table => (
-              <option key={table.id} value={table.id}>{table.name}</option>
-            ))}
-          </select>
-          {errors.referencesTable && (
+        <>
+          <div className="form-control">
             <label className="label">
-              <span className="label-text-alt text-error">{errors.referencesTable.message}</span>
+              <span className="label-text">References Table</span>
             </label>
+            <select
+              className={`select select-bordered w-full ${errors.referencesTable ? 'select-error' : ''}`}
+              {...register('referencesTable', {
+                required: isForeignKey ? 'Reference table is required' : false
+              })}
+            >
+              <option value="">Select a table</option>
+              {otherTables.map(table => (
+                <option key={table.id} value={table.id}>{table.name}</option>
+              ))}
+            </select>
+            {errors.referencesTable && (
+              <label className="label">
+                <span className="label-text-alt text-error">{errors.referencesTable.message}</span>
+              </label>
+            )}
+          </div>
+
+          {referencesTable && (
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">References Field</span>
+              </label>
+              <select
+                className={`select select-bordered w-full ${errors.referencesField ? 'select-error' : ''}`}
+                {...register('referencesField', {
+                  required: isForeignKey ? 'Reference field is required' : false
+                })}
+              >
+                <option value="">Select a field</option>
+                {referencedTableAttributes.map(attr => (
+                  <option key={attr.id} value={attr.id}>{attr.name}</option>
+                ))}
+              </select>
+              {errors.referencesField && (
+                <label className="label">
+                  <span className="label-text-alt text-error">{errors.referencesField.message}</span>
+                </label>
+              )}
+            </div>
           )}
-        </div>
+        </>
       )}
       
       {!isPrimaryKey && selectedType !== 'boolean' && (

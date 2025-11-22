@@ -1,4 +1,4 @@
-import type {StatProps} from "@models/components";
+import type { StatProps } from "@models/components";
 
 
 const Stats:StatProps = ({name, nodes, edges}) => {
