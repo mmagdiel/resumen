@@ -79,7 +79,7 @@ const TableNode: FC<TableNodeProps> = memo(({ data, id }) => {
     return 0;
   })[0].name.length
 
-  const clazz = `bg-base-100 rounded-lg shadow-lg p-4 border border-base-300 w-${size < 19 ? 64 : (size > 19? 80: 96)}`
+  const clazz = `bg-base-100 rounded-lg shadow-lg p-4 border border-base-300 w-${size < 17 ? 64 : (size > 18 && size < 23? 80: 96)}`
   return (
     <div className={clazz}>
       {/* Table Header */}
